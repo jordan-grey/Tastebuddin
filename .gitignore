@@ -1,2 +1,5 @@
 # MOST IMPORTANT WHERE API KEYS ARE HELD
 .env
+
+# macOS system files
+.DS_Store
