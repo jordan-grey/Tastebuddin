@@ -4,7 +4,7 @@
 # macOS system files
 .DS_Store
 
-
+#ignore for now
 # Python cache files
 __pycache__/
 *.py[cod]
