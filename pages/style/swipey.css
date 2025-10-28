@@ -1,0 +1,11 @@
+.recipe-background-img {
+    display: block;
+
+    max-width: 80%;
+    object-fit: cover;
+}
+
+.recipe-viewport {
+    display: block;
+    margin: 50px;
+}
