@@ -1,87 +1,72 @@
 import unittest
 import json
-import uuid
-from app import app
+from app import app  # Flask app entry point
+from unittest.mock import patch
 
 class RecipeRoutesTestCase(unittest.TestCase):
-
     def setUp(self):
-        self.client = app.test_client()
-        self.client.testing = True
+        self.app = app.test_client()
+        self.app.testing = True
 
-        # sample recipe data
-        self.new_recipe = {
-            "Title": "Test Brownies",
-            "Author": "97c33e9b-e74d-425b-8700-b7aa20ff9da7",
-            "Category": "Dessert",
-            "MinutesToComplete": 45,
-            "Description": "Rich chocolate brownies",
-            "Ingredients": ["flour", "sugar", "cocoa"],
-            "Directions": ["mix", "bake", "cool"],
-            "DietaryRestrictions": "Vegetarian",
-            "DateCreated": "2025-10-20",
-            "Likes": 0
-        }
-
-    def test_create_recipe(self):
-        """Test POST /recipes (init)"""
-        response = self.client.post(
-            "/recipes",
-            data=json.dumps(self.new_recipe),
-            content_type="application/json"
-        )
-        self.assertIn(response.status_code, [201, 500])  # 500 if DB error
-        print("POST response:", response.json)
-        self.assertEqual(response.json['message'], 'Recipe created successfully')
-
-
-    def test_get_all_recipes(self):
-        """Test GET /recipes"""
-        response = self.client.get("/recipes")
+    # --- GET ALL RECIPES ---
+    @patch("recipe_service.get_all_recipes")
+    def test_get_all_recipes(self, mock_get_all_recipes):
+        mock_get_all_recipes.return_value = [
+            {"recipe_id": 1, "Title": "Brownies"},
+            {"recipe_id": 2, "Title": "Cookies"},
+        ]
+        response = self.app.get("/recipes")
         self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.json, list)
+        self.assertIn(b"Brownies", response.data)
 
-    def test_get_single_recipe(self):
-        """Test GET /recipes/<id>"""
-        recipe_id = 1  # replace with a valid ID from your DB if available
-        response = self.client.get(f"/recipes/{recipe_id}")
-        self.assertIn(response.status_code, [200, 404])
+    # --- GET SINGLE RECIPE ---
+    @patch("recipe_service.get_recipe_by_id")
+    def test_get_single_recipe(self, mock_get_recipe_by_id):
+        mock_get_recipe_by_id.return_value = {"recipe_id": 1, "Title": "Brownies"}
+        response = self.app.get("/recipes/1")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Brownies", response.data)
 
-    def test_update_recipe(self):
-        """Test PUT /recipes/<id>"""
-        updated_data = {"Description": "Updated Description"}
-        recipe_id = 1
-        response = self.client.put(
-            f"/recipes/{recipe_id}",
-            data=json.dumps(updated_data),
-            content_type="application/json"
-        )
-        self.assertIn(response.status_code, [200, 404, 500])
-
-    def test_delete_recipe(self):
-        """Test DELETE /recipes/<id>"""
-        recipe_id = 1
-        response = self.client.delete(f"/recipes/{recipe_id}")
-        self.assertIn(response.status_code, [200, 404, 500])
-'''
-class UserTasksTestCase(unittest.TestCase):
-    def setUp(self):
-        self.client = app.test_client()
-        self.client.testing = True
-
-        # sample recipe data
-        self.new_user = {
+    # --- CREATE RECIPE ---
+    @patch("recipe_service.create_recipe")
+    def test_create_recipe(self, mock_create_recipe):
+        mock_create_recipe.return_value = {"message": "Recipe created successfully"}
+        payload = {
             "Title": "Test Brownies",
-            "Author": "97c33e9b-e74d-425b-8700-b7aa20ff9da7",
-            "Category": "Dessert",
-            "MinutesToComplete": 45,
             "Description": "Rich chocolate brownies",
+            "Category": "Dessert",
             "Ingredients": ["flour", "sugar", "cocoa"],
             "Directions": ["mix", "bake", "cool"],
-            "DietaryRestrictions": "Vegetarian",
-            "DateCreated": "2025-10-20",
-            "Likes": 0
         }
-'''
-if __name__ == '__main__':
+        response = self.app.post(
+            "/recipes",
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Recipe created successfully", response.data)
+
+    # --- UPDATE RECIPE ---
+    @patch("recipe_service.update_recipe")
+    def test_update_recipe(self, mock_update_recipe):
+        mock_update_recipe.return_value = {"message": "Recipe updated successfully"}
+        payload = {"Title": "Updated Brownie"}
+        response = self.app.put(
+            "/recipes/1",
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Recipe updated successfully", response.data)
+
+    # --- DELETE RECIPE ---
+    @patch("recipe_service.delete_recipe")
+    def test_delete_recipe(self, mock_delete_recipe):
+        mock_delete_recipe.return_value = {"message": "Recipe deleted successfully"}
+        response = self.app.delete("/recipes/1")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Recipe deleted successfully", response.data)
+
+
+if __name__ == "__main__":
     unittest.main()
