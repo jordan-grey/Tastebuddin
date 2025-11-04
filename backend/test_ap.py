@@ -1,4 +1,4 @@
-import unittest
+'''import unittest
 from unittest.mock import patch, MagicMock
 from app import app  # Flask app
 from recipe_utility import (
@@ -144,7 +144,7 @@ class RecipeRoutesIntegrationTest(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
 
-    # ✅ 1. Create recipe (uses lowercase + valid UUID)
+    #  1. Create recipe (uses lowercase + valid UUID)
     def test_1_post_recipe_real(self):
         new_recipe = {
             "title": "IntegrationTest Brownies",
@@ -153,8 +153,8 @@ class RecipeRoutesIntegrationTest(unittest.TestCase):
             "directions": ["mix", "bake", "cool"],
             "dietaryrestrictions": ["vegetarian"],
             "category": "dessert",
-            "authorid": "00000000-0000-0000-0000-000000000000",
-            "authorname": "TestUser",
+            "authorid": "97c33e9b-e74d-425b-8700-b7aa20ff9da7",
+            "authorname": "sarah_test",
             "minutestocomplete": 45
         }
         response = self.client.post(
@@ -165,14 +165,14 @@ class RecipeRoutesIntegrationTest(unittest.TestCase):
         print("POST Response:", response.json)
         self.assertIn(response.status_code, [200, 201])
 
-    # ✅ 2. Get all recipes
+    #  2. Get all recipes
     def test_2_get_all_recipes(self):
         response = self.client.get("/recipes")
         print("GET /recipes:", response.json)
         self.assertIsInstance(response.json, list)
         self.assertGreaterEqual(len(response.json), 0)
 
-    # ✅ 3. Get one recipe by ID
+    #  3. Get one recipe by ID
     def test_3_get_single_recipe(self):
         recipes = supabase.table("recipes_public").select("recipeid").limit(1).execute()
         if not recipes.data:
@@ -181,7 +181,7 @@ class RecipeRoutesIntegrationTest(unittest.TestCase):
         response = self.client.get(f"/recipes/{recipe_id}")
         self.assertIn(response.status_code, [200, 404])
 
-    # ✅ 4. Update recipe
+    #  4. Update recipe
     def test_4_update_recipe(self):
         recipes = supabase.table("recipes_public").select("recipeid").limit(1).execute()
         if not recipes.data:
@@ -195,7 +195,7 @@ class RecipeRoutesIntegrationTest(unittest.TestCase):
         )
         self.assertIn(response.status_code, [200, 404])
 
-    # ✅ 5. Delete recipe
+    #  5. Delete recipe
     def test_5_delete_recipe(self):
         new_recipe = {
             "title": "DeleteMe",
@@ -203,8 +203,8 @@ class RecipeRoutesIntegrationTest(unittest.TestCase):
             "ingredients": ["temp"],
             "directions": ["none"],
             "category": "temp",
-            "authorid": "00000000-0000-0000-0000-000000000000",
-            "authorname": "DeleteUser"
+            "authorid": "97c33e9b-e74d-425b-8700-b7aa20ff9da7",
+            "authorname": "sarah_test"
         }
         insert = supabase.table("recipes_public").insert(new_recipe).execute()
         if not insert.data:
@@ -217,4 +217,3 @@ class RecipeRoutesIntegrationTest(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
-'''

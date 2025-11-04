@@ -21,7 +21,7 @@ def get_all_recipes():
 
 def get_recipe_by_id(recipe_id):
     try:
-        response = supabase.table("recipes_public").select("*").eq("recipe_id", recipe_id).execute()
+        response = supabase.table("recipes_public").select("*").eq("recipeid", recipe_id).execute()
         if response.data:
             return jsonify(response.data[0]), 200
         else:
@@ -65,16 +65,16 @@ def create_recipe(data):
         print("📦 Incoming recipe data:", data)  # Debug line
 
         data = {
-            "title": data.get("Title"),
-            "description": data.get("Description"),
-            "ingredients": data.get("Ingredients"),
-            "directions": data.get("Directions"),
-            "category": data.get("Category"),
-            "dietaryrestrictions": data.get("DietaryRestrictions"),
-            "minutestocomplete": data.get("MinutesToComplete"),
-            "photopath": data.get("PhotoPath"),
-            "authorid": data.get("AuthorID"),
-            "authorname": data.get("AuthorName"),
+            "title": data.get("title"),
+            "description": data.get("description"),
+            "ingredients": data.get("ingredients"),
+            "directions": data.get("directions"),
+            "category": data.get("category"),
+            "dietaryrestrictions": data.get("dietaryrestrictions"),
+            "minutestocomplete": data.get("minutestocomplete"),
+            "photopath": data.get("photopath"),
+            "authorid": data.get("authorid"),
+            "authorname": data.get("authorname"),
             "datecreated": datetime.now(timezone.utc).isoformat()
         }
                 
