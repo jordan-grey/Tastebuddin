@@ -37,6 +37,12 @@ def edit_recipe(recipe_id):
 def remove_recipe(recipe_id):
     return recipe_service.delete_recipe(recipe_id)
 
+@app.route("/recipes/unseen/<user_id>", methods=["GET"])
+def get_filtered_unseen_recipes(user_id):
+    from recipe_service import filter_recipes_by_restrictions
+    filtered_recipes = filter_recipes_by_restrictions(user_id)
+    return jsonify(filtered_recipes), 200
+
 
 @app.errorhandler(404)
 def error_404(e):
