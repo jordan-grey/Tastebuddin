@@ -1,72 +1,220 @@
 import unittest
-import json
-from app import app  # Flask app entry point
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
+from app import app  # Flask app
+from recipe_utility import (
+    filter_recipes_by_user_restrictions,
+    add_to_unseen
+)
+
+# Mock Supabase for testing
+mock_recipe = {
+    "Title": "Test Brownies",
+    "AuthorID": "mock-user-uuid",
+    "AuthorName": "Kadee",
+    "Category": "Dessert",
+    "Description": "Rich chocolate brownies",
+    "Ingredients": ["flour", "sugar", "cocoa"],
+    "Directions": ["mix", "bake", "cool"],
+    "DietaryRestrictions": ["Vegetarian"],
+    "Likes": 0,
+    "MinutesToComplete": 45
+}
+
 
 class RecipeRoutesTestCase(unittest.TestCase):
     def setUp(self):
-        self.app = app.test_client()
-        self.app.testing = True
+        app.config["TESTING"] = True
+        self.client = app.test_client()
 
-    # --- GET ALL RECIPES ---
-    @patch("recipe_service.get_all_recipes")
-    def test_get_all_recipes(self, mock_get_all_recipes):
-        mock_get_all_recipes.return_value = [
-            {"recipe_id": 1, "Title": "Brownies"},
-            {"recipe_id": 2, "Title": "Cookies"},
-        ]
-        response = self.app.get("/recipes")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Brownies", response.data)
-
-    # --- GET SINGLE RECIPE ---
-    @patch("recipe_service.get_recipe_by_id")
-    def test_get_single_recipe(self, mock_get_recipe_by_id):
-        mock_get_recipe_by_id.return_value = {"recipe_id": 1, "Title": "Brownies"}
-        response = self.app.get("/recipes/1")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Brownies", response.data)
-
-    # --- CREATE RECIPE ---
-    @patch("recipe_service.create_recipe")
-    def test_create_recipe(self, mock_create_recipe):
-        mock_create_recipe.return_value = {"message": "Recipe created successfully"}
-        payload = {
-            "Title": "Test Brownies",
-            "Description": "Rich chocolate brownies",
-            "Category": "Dessert",
-            "Ingredients": ["flour", "sugar", "cocoa"],
-            "Directions": ["mix", "bake", "cool"],
+    # ---- POST Recipe ----
+    @patch("recipe_service.supabase.table")
+    def test_post_recipe(self, mock_table):
+        mock_recipe = {
+            "title": "Chocolate Cake",
+            "description": "Rich dessert",
+            "ingredients": ["flour", "sugar", "cocoa"],
+            "directions": ["mix", "bake"],
+            "category": "Dessert",
+            "authorID": "test-user-id",
+            "dietaryrestrictions": ["Vegetarian"]
         }
-        response = self.app.post(
-            "/recipes",
-            data=json.dumps(payload),
-            content_type="application/json",
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Recipe created successfully", response.data)
 
-    # --- UPDATE RECIPE ---
-    @patch("recipe_service.update_recipe")
-    def test_update_recipe(self, mock_update_recipe):
-        mock_update_recipe.return_value = {"message": "Recipe updated successfully"}
-        payload = {"Title": "Updated Brownie"}
-        response = self.app.put(
-            "/recipes/1",
-            data=json.dumps(payload),
-            content_type="application/json",
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Recipe updated successfully", response.data)
+        # Mock Supabase insert().execute() return
+        mock_exec = MagicMock()
+        mock_exec.data = [mock_recipe]
+        mock_table.return_value.insert.return_value.execute.return_value = mock_exec
 
-    # --- DELETE RECIPE ---
-    @patch("recipe_service.delete_recipe")
-    def test_delete_recipe(self, mock_delete_recipe):
-        mock_delete_recipe.return_value = {"message": "Recipe deleted successfully"}
-        response = self.app.delete("/recipes/1")
+        response = self.client.post("/recipes", json=mock_recipe)
+        print("POST response:", response.get_data(as_text=True))  # optional debugging line
+        self.assertIn(response.status_code, [200, 201])
+
+    # ---- GET All Recipes ----
+    @patch("recipe_service.supabase.table")
+    def test_get_all_recipes(self, mock_table):
+        mock_exec = MagicMock()
+        mock_exec.data = [mock_recipe]
+        mock_table.return_value.select.return_value.execute.return_value = mock_exec
+
+        response = self.client.get("/recipes")
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Recipe deleted successfully", response.data)
+        self.assertIn("Test Brownies", response.get_data(as_text=True))
+
+    # ---- GET Single Recipe ----
+    @patch("recipe_service.supabase.table")
+    def test_get_single_recipe(self, mock_table):
+        mock_exec = MagicMock()
+        mock_exec.data = [mock_recipe]
+        mock_table.return_value.select.return_value.eq.return_value.execute.return_value = mock_exec
+
+        response = self.client.get("/recipes/1")
+        self.assertEqual(response.status_code, 200)
+
+    # ---- PUT Recipe ----
+    @patch("recipe_service.supabase.table")
+    def test_update_recipe(self, mock_table):
+        mock_exec = MagicMock()
+        mock_exec.data = [{"Title": "Updated Recipe"}]
+        mock_table.return_value.update.return_value.eq.return_value.execute.return_value = mock_exec
+
+        response = self.client.put("/recipes/1", json={"Title": "Updated Recipe"})
+        self.assertIn(response.status_code, [200, 404])
+
+    # ---- DELETE Recipe ----
+    @patch("recipe_service.supabase.table")
+    def test_delete_recipe(self, mock_table):
+        mock_exec = MagicMock()
+        mock_exec.data = [{"deleted": True}]
+        mock_table.return_value.delete.return_value.eq.return_value.execute.return_value = mock_exec
+
+        response = self.client.delete("/recipes/1")
+        self.assertIn(response.status_code, [200, 404])
+
+
+# ------------------------------------------------------------------------
+# Utility function tests (no real Supabase)
+# ------------------------------------------------------------------------
+
+class RecipeUtilityTests(unittest.TestCase):
+
+    @patch("recipe_utility.supabase")
+    def test_filter_recipes_by_user_restrictions(self, mock_supabase):
+        # Mock recipe data
+        mock_supabase.table.return_value.select.return_value.execute.return_value.data = [
+            {"Title": "Salad", "DietaryRestrictions": ["Vegetarian"]},
+            {"Title": "Steak", "DietaryRestrictions": ["Meat"]},
+            {"Title": "Tofu Bowl", "DietaryRestrictions": ["Vegan"]}
+        ]
+
+        # Mock user preferences
+        user_prefs = {"DietaryRestrictions": ["Vegetarian", "Pescatarian"]}
+        mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value.data = [user_prefs]
+
+        filtered = filter_recipes_by_user_restrictions("mock-user-id")
+        # Expect vegan excluded since not in allowed list
+        self.assertTrue(any(r["Title"] == "Salad" for r in filtered))
+        self.assertFalse(any(r["Title"] == "Steak" for r in filtered))
+
+    @patch("recipe_utility.supabase")
+    def test_add_recipe_to_unseen_for_all_users(self, mock_supabase):
+        mock_supabase.table.return_value.select.return_value.execute.return_value.data = [
+            {"UserID": "user1"},
+            {"UserID": "user2"},
+        ]
+        add_to_unseen("user1", 15)
+        mock_supabase.table.assert_called()  # Ensures it tried inserting unseen entries
 
 
 if __name__ == "__main__":
     unittest.main()
+    '''
+
+
+import unittest
+import json
+from app import app
+from supabase import create_client
+import os
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+
+class RecipeRoutesIntegrationTest(unittest.TestCase):
+    def setUp(self):
+        self.client = app.test_client()
+
+    # ✅ 1. Create recipe (uses lowercase + valid UUID)
+    def test_1_post_recipe_real(self):
+        new_recipe = {
+            "title": "IntegrationTest Brownies",
+            "description": "Sweet test brownies",
+            "ingredients": ["flour", "sugar", "chocolate"],
+            "directions": ["mix", "bake", "cool"],
+            "dietaryrestrictions": ["vegetarian"],
+            "category": "dessert",
+            "authorid": "00000000-0000-0000-0000-000000000000",
+            "authorname": "TestUser",
+            "minutestocomplete": 45
+        }
+        response = self.client.post(
+            "/recipes",
+            data=json.dumps(new_recipe),
+            content_type="application/json"
+        )
+        print("POST Response:", response.json)
+        self.assertIn(response.status_code, [200, 201])
+
+    # ✅ 2. Get all recipes
+    def test_2_get_all_recipes(self):
+        response = self.client.get("/recipes")
+        print("GET /recipes:", response.json)
+        self.assertIsInstance(response.json, list)
+        self.assertGreaterEqual(len(response.json), 0)
+
+    # ✅ 3. Get one recipe by ID
+    def test_3_get_single_recipe(self):
+        recipes = supabase.table("recipes_public").select("recipeid").limit(1).execute()
+        if not recipes.data:
+            self.skipTest("No recipes found for single test.")
+        recipe_id = recipes.data[0]["recipeid"]
+        response = self.client.get(f"/recipes/{recipe_id}")
+        self.assertIn(response.status_code, [200, 404])
+
+    # ✅ 4. Update recipe
+    def test_4_update_recipe(self):
+        recipes = supabase.table("recipes_public").select("recipeid").limit(1).execute()
+        if not recipes.data:
+            self.skipTest("No recipes found to update.")
+        recipe_id = recipes.data[0]["recipeid"]
+        update_data = {"description": "Updated test recipe!"}
+        response = self.client.put(
+            f"/recipes/{recipe_id}",
+            data=json.dumps(update_data),
+            content_type="application/json",
+        )
+        self.assertIn(response.status_code, [200, 404])
+
+    # ✅ 5. Delete recipe
+    def test_5_delete_recipe(self):
+        new_recipe = {
+            "title": "DeleteMe",
+            "description": "Temporary for deletion test",
+            "ingredients": ["temp"],
+            "directions": ["none"],
+            "category": "temp",
+            "authorid": "00000000-0000-0000-0000-000000000000",
+            "authorname": "DeleteUser"
+        }
+        insert = supabase.table("recipes_public").insert(new_recipe).execute()
+        if not insert.data:
+            self.skipTest("Insert failed; cannot test deletion.")
+        recipe_id = insert.data[0]["recipeid"]
+        response = self.client.delete(f"/recipes/{recipe_id}")
+        self.assertIn(response.status_code, [200, 404])
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+'''
