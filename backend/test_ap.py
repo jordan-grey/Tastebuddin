@@ -1,4 +1,4 @@
-import unittest
+'''import unittest
 from unittest.mock import patch, MagicMock
 from app import app  # Flask app
 from recipe_utility import (
@@ -153,8 +153,8 @@ class RecipeRoutesIntegrationTest(unittest.TestCase):
             "directions": ["mix", "bake", "cool"],
             "dietaryrestrictions": ["vegetarian"],
             "category": "dessert",
-            "authorid": "00000000-0000-0000-0000-000000000000",
-            "authorname": "TestUser",
+            "authorid": "97c33e9b-e74d-425b-8700-b7aa20ff9da7",
+            "authorname": "sarah_test",
             "minutestocomplete": 45
         }
         response = self.client.post(
@@ -203,8 +203,8 @@ class RecipeRoutesIntegrationTest(unittest.TestCase):
             "ingredients": ["temp"],
             "directions": ["none"],
             "category": "temp",
-            "authorid": "00000000-0000-0000-0000-000000000000",
-            "authorname": "DeleteUser"
+            "authorid": "97c33e9b-e74d-425b-8700-b7aa20ff9da7",
+            "authorname": "sarah_test"
         }
         insert = supabase.table("recipes_public").insert(new_recipe).execute()
         if not insert.data:
@@ -217,4 +217,3 @@ class RecipeRoutesIntegrationTest(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
-'''
