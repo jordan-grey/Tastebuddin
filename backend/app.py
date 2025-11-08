@@ -1,7 +1,7 @@
 import os   #accessing env varibles 
 from flask import Flask, jsonify, request, render_template   #Flask for webapp, jsonify for return JSON response
 from dotenv import load_dotenv      # to load env variables from .env file
-from supabase import create_client, Client   # Client to act with datbase 
+from supabase import create_client, Client  # Client to act with datbase 
 
 
 #load env varibles from .env file
@@ -18,6 +18,21 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 #Initialize the Supabase Client 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+## -----------------------------
+#   User Login Functions
+# -----------------------------
+
+@app.route('/login', methods=['POST'])
+def register_auth(email, password):
+    response = supabase.auth.sign_up({        
+        "email": email,        
+        "password": password})
+    return response
+def register_auth(email, password):
+    response = supabase.auth.sign_in_with_password({        
+        "email": email,        
+        "password": password})
+    return response
 ## -----------------------------
 #   Recipe CRUD FUNCTIONS
 # -----------------------------

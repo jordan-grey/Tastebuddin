@@ -1,7 +1,7 @@
 import unittest
 import json
-import uuid
 from app import app
+
 
 class RecipeRoutesTestCase(unittest.TestCase):
 
@@ -63,25 +63,31 @@ class RecipeRoutesTestCase(unittest.TestCase):
         recipe_id = 1
         response = self.client.delete(f"/recipes/{recipe_id}")
         self.assertIn(response.status_code, [200, 404, 500])
-'''
+
 class UserTasksTestCase(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
         self.client.testing = True
+        self.auth.id = "0"
 
-        # sample recipe data
-        self.new_user = {
-            "Title": "Test Brownies",
-            "Author": "97c33e9b-e74d-425b-8700-b7aa20ff9da7",
-            "Category": "Dessert",
-            "MinutesToComplete": 45,
-            "Description": "Rich chocolate brownies",
-            "Ingredients": ["flour", "sugar", "cocoa"],
-            "Directions": ["mix", "bake", "cool"],
-            "DietaryRestrictions": "Vegetarian",
-            "DateCreated": "2025-10-20",
-            "Likes": 0
-        }
-'''
+    def test_register(self):
+        """Test GET /recipes"""
+        response = self.auth.sign_up(    {
+             "email": "email@example.com",
+             "password": "password",    })
+        self.auth.id = response.user.id
+        self.assertEqual(response.session.aud, "authenticated")
+
+    def test_signin(self):
+        """Test GET /recipes"""
+        response = self.client.get("/recipes")
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.json, list)
+
+    def test_deletetester(self):
+        response = delete_account(self.auth.id)
+        self.assertEqual(response.status_code, 200)
+
+
 if __name__ == '__main__':
     unittest.main()
