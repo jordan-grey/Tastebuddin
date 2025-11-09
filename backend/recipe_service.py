@@ -46,7 +46,7 @@ class RecipeService:
     def create_recipe(self, data):
         try:
             data["datecreated"] = datetime.now(timezone.utc).isoformat()
-            required_fields = ["title", "description", "ingredients", "directions"]
+            required_fields = ["title", "description", "ingredients", "directions", "authorid"]
             for field in required_fields:
                 if field not in data:
                     return {"error": f"Missing required field: {field}"}, 400
