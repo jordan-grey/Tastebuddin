@@ -3,10 +3,20 @@
 <head>
     <title>Tastebuddin Login</title>
     <link rel="stylesheet" href="style/swipey.css">
+    <link rel="stylesheet" href="style/signin.css">
+
+    <!-- import Montserrat -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+  
+   <!-- JQuery Library -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <!-- Supabase JS library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
-<div id="container">
+<div id="container" class="recipe-viewport">
     <div id="recipe-image" class="recipe-background-img">
         <img src="default-resources/empty-dish.jpg" alt="The default empty dish.">
     </div>
@@ -37,14 +47,30 @@
                 </ol>
             </div>
             <div id="swipey-buttons">
-                <div id="reject-button"></div>
-                <div id="like-button"></div>
+                <div id="reject-button">
+                    <button>Dislike</button>
+                </div>
+                <div id="like-button">
+                    <button>Like</button>
+                </div>
             </div>
             
         </div>
     </div>
-
 </div>
+
+<!-- javascript -- move into another file sometime -->
+<script type="text/javascript">
+    function load_recipe(recipe) {
+        
+    }
+
+
+    $(document).ready(function() {
+
+    })
+</script>
+
 </body>
 
 </html>
