@@ -26,12 +26,12 @@ class RecipeServiceDatabaseTest(unittest.TestCase):
             "authorname": "sarah_test"
         }
         result = self.service.create_recipe(data)
-        print("Create Response:", result)
+        #print("Create Response:", result)
         self.assertIn("data", result)
 
     def test_2_get_all_recipes(self):
         result = self.service.get_all_recipes()
-        print("All Recipes:", result)
+        #print("All Recipes:", result)
         self.assertIn("data", result)
 
     def test_3_get_single_recipe(self):
@@ -77,7 +77,6 @@ class RecipeServiceDatabaseTest(unittest.TestCase):
         result = confirm_resp
         self.assertEqual(status, 404)
         self.assertIn("error", result)
-
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

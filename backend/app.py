@@ -1,11 +1,10 @@
 import os   #accessing env varibles 
 from flask import Flask, jsonify, request, render_template   #Flask for webapp, jsonify for return JSON response
-from flask_cors import CORS
 from recipe_service import RecipeService
+from recipe_utility import RecipeUtility
 from dotenv import load_dotenv
-import recipe_service  # Import your module f   # to load env variables from .env file
 from supabase import create_client, Client 
-import recipe_service   # Client to act with datbase 
+import uuid
 
 
 app = Flask(__name__)
@@ -13,43 +12,15 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-#CORS(app)
+
 
 service = RecipeService(supabase)
+utility = RecipeUtility(supabase)
+
 
 @app.route('/')
 def index():
     return {"message": "CookSwipe API running!"}
-'''
-# ---------- Recipe Routes ----------
-@app.route('/recipes', methods=['GET'])
-def get_recipes():
-    return recipe_service.get_all_recipes()
-
-@app.route('/recipes/<int:recipe_id>', methods=['GET'])
-def get_recipe(recipe_id):
-    return recipe_service.get_recipe_by_id(recipe_id)
-
-@app.route('/recipes', methods=['POST'])
-def add_recipe():
-    data = request.get_json()
-    return recipe_service.create_recipe(data)
-
-@app.route('/recipes/<int:recipe_id>', methods=['PUT'])
-def edit_recipe(recipe_id):
-    data = request.get_json()
-    return recipe_service.update_recipe(recipe_id, data)
-
-@app.route('/recipes/<int:recipe_id>', methods=['DELETE'])
-def remove_recipe(recipe_id):
-    return recipe_service.delete_recipe(recipe_id)
-
-@app.route("/recipes/unseen/<user_id>", methods=["GET"])
-def get_filtered_unseen_recipes(user_id):
-    from recipe_service import filter_recipes_by_restrictions
-    filtered_recipes = filter_recipes_by_restrictions(user_id)
-    return jsonify(filtered_recipes), 200
-
 
 @app.errorhandler(404)
 def error_404(e):
@@ -58,8 +29,6 @@ def error_404(e):
 @app.errorhandler(403)
 def error_403(e):
     return render_template('403.html')
-
-'''
 
 @app.route("/recipes", methods=["GET"])
 def get_all_recipes():
@@ -87,5 +56,62 @@ def update_recipe(recipe_id):
 def delete_recipe(recipe_id):
     result = service.delete_recipe(recipe_id)
     return jsonify(result), 200 if "error" not in result else 400
+
+@app.route("/feed/<identifier>", methods=["GET"])
+def get_user_feed(identifier):
+    """
+    Returns a personalized recipe feed for a given user.
+    The identifier can be either a UUID (id) or a username (string).
+    """
+    try:
+        print(f"[DEBUG] Feed request for identifier: {identifier}")
+
+        # Detect whether identifier is a UUID or username
+        query_col = "id" if is_valid_uuid(identifier) else "username"
+        print(f"Querying users_public.{query_col} for {identifier}")
+
+        # Fetch user info
+        user_response = (
+            supabase.table("users_public")
+            .select("*")
+            .eq(query_col, identifier)
+            .execute()
+        )
+
+        if not user_response.data:
+            print("⚠️ No user found for that identifier")
+            return jsonify({"error": "User not found"}), 404
+
+        user = user_response.data[0]
+        print(f"Loaded user info: {user}")
+
+        # Fetch all recipes
+        recipe_response = supabase.table("recipes_public").select("*").execute()
+        recipes = recipe_response.data or []
+
+        print(f"📚 Retrieved {len(recipes)} total recipes")
+
+        # Pass both datasets to your RecipeUtility class
+        feed = utility.generate_user_feed(recipes, user)
+
+        return jsonify({"data": feed}), 200
+
+    except Exception as e:
+        import traceback
+        print("[ERROR TRACEBACK]")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+
+def is_valid_uuid(value):
+    """Helper: Check if a string looks like a valid UUID."""
+    import uuid
+    try:
+        uuid.UUID(str(value))
+        return True
+    except ValueError:
+        return False
+
 if __name__ == '__main__':
     app.run(debug=True)
