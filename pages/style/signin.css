@@ -1,0 +1,169 @@
+body {
+  background: #88b6e7;
+}
+* {
+    font-family: 'Montserrat', sans-serif;
+}
+a {
+  text-decoration: none;
+  color: #64e397;
+  transition: 0.5s ease;
+}
+
+a:hover {
+  color: #64e397;
+}
+
+.form {
+  background: #d7263d;
+  padding: 60px;
+  max-width: 750px;
+  margin: 60px auto;
+  border-radius: 6px;
+  box-shadow: 0 6px 14px 6px rgba(19, 35, 47, 0.3);
+}
+
+.tab-group {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 40px 0;
+  overflow: hidden;
+}
+
+.tab-group li {
+  float: left;
+  width: 50%;
+}
+
+.tab-group li a {
+  display: block;
+  text-decoration: none;
+  padding: 20px;
+  background: rgba(160, 179, 176, 0.25);
+  color: #FFFFFF;
+  font-size: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.5s ease;
+}
+
+.tab-group li a:hover {
+  background: #64e397;
+  color: #02111b;
+}
+
+.tab-group .active a {
+  background: #64e397;
+  color: #02111b; /* log in button at the top */
+}
+
+.tab-content > div:last-child {
+  display: none;
+}
+
+h1 { /* TASTEBUDDIN */
+  text-align: center;
+  color: #02111b;
+  font-weight: 300;
+  font-size: 40px;
+  margin: 0 0 45px;
+  font-weight: 700;
+}
+
+label {
+  position: absolute;
+  transform: translateY(8px);
+  left: 16px;
+  color: rgba(255, 255, 255, 0.5);
+  transition: all 0.25s ease;
+  font-size: 26px;
+  pointer-events: none;
+}
+
+label .req {
+  margin: 2px;
+  color: #64e397; /* the asterisks */
+}
+
+label.active {
+  transform: translateY(60px);
+  left: 2px;
+  font-size: 16px;
+}
+
+label.highlight {
+  color: #02111b;
+}
+
+input, textarea {
+  font-size: 26px;
+  display: block;
+  width: 100%;
+  padding: 8px 14px;
+  background: none;
+  border: 2px solid #a0b3b0;
+  color: #ffffff;
+  border-radius: 0;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+input:focus, textarea:focus {
+  outline: 0;
+  border-color: #64e397;
+}
+
+textarea {
+  border: 2px solid #a0b3b0;
+  resize: vertical;
+}
+
+.field-wrap {
+  position: relative;
+  margin-bottom: 50px;
+}
+
+.top-row::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.top-row > div {
+  float: left;
+  width: 48%;
+  margin-right: 4%;
+}
+
+.top-row > div:last-child {
+  margin: 0;
+}
+
+.button {
+  border: 0;
+  outline: none;
+  border-radius: 6;
+  padding: 20px 0;
+  font-size: 2.4rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  background: #64e397; /* button color */
+  color: #02111b; /* "LOG IN"/"GET STARTED" */
+  transition: all 0.5s ease;
+  -webkit-appearance: none;
+}
+
+.button:hover, .button:focus {
+  background: #159e7f;
+}
+
+.button-block {
+  display: block;
+  width: 100%;
+}
+
+.forgot {
+  margin-top: -10px;
+  text-align: right;
+  font-size: 18px;
+}
