@@ -22,8 +22,8 @@ class RecipeServiceDatabaseTest(unittest.TestCase):
             "category": "dessert",
             "dietaryrestrictions": ["vegetarian"],
             "minutestocomplete": 30,
-            "authorid": "97c33e9b-e74d-425b-8700-b7aa20ff9da7",
-            "authorname": "sarah_test"
+            "authorid": "fce74316-e465-412b-8e57-8ff7cbd72d3d",
+            "authorname": "test_kadee"
         }
         result = self.service.create_recipe(data)
         #print("Create Response:", result)
@@ -35,13 +35,13 @@ class RecipeServiceDatabaseTest(unittest.TestCase):
         self.assertIn("data", result)
 
     def test_3_get_single_recipe(self):
-        result, status = self.service.get_recipe(26)
+        result, status = self.service.get_recipe(1)
         self.assertEqual(status, 200)
         self.assertIn("data", result)
 
     def test_4_update_recipe(self):
         update_data = {"description": "Updated via unit test!"}
-        result = self.service.update_recipe(26, update_data)
+        result = self.service.update_recipe(1, update_data)
         print("Update Response:", result)
         self.assertIn("data", result)
 
