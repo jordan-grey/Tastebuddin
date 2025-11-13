@@ -5,6 +5,7 @@ from recipe_utility import RecipeUtility
 from dotenv import load_dotenv
 from supabase import create_client, Client 
 import uuid
+from leaderboard_service import LeaderboardService
 
 
 app = Flask(__name__)
@@ -16,6 +17,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 service = RecipeService(supabase)
 utility = RecipeUtility(supabase)
+leaderboard_service = LeaderboardService(supabase)
 
 
 @app.route('/')
@@ -112,6 +114,22 @@ def is_valid_uuid(value):
         return True
     except ValueError:
         return False
+    
+
+@app.route("/leaderboard/daily", methods=["GET"])
+def get_daily_leaderboard():
+    result, status = leaderboard_service.get_daily_leaderboard(limit=10)
+    return jsonify(result), status
+
+@app.route("/leaderboard/weekly", methods=["GET"])
+def leaderboard_weekly():
+    result, status = leaderboard_service.get_weekly_leaderboard(limit=10)
+    return jsonify(result), status
+
+@app.route("/leaderboard/authors", methods=["GET"])
+def leaderboard_authors():
+    result, status = leaderboard_service.get_author_leaderboard(limit=10)
+    return jsonify(result), status
 
 if __name__ == '__main__':
     app.run(debug=True)
