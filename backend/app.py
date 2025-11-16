@@ -44,14 +44,16 @@ def get_recipe(recipe_id):
 
 @app.route("/recipes", methods=["POST"])
 def create_recipe():
-    data = request.get_json()
-    result = service.create_recipe(data)
+    data = dict(request.form) if request.form else request.json()
+    image_file = request.files.get("image")
+    result = service.create_recipe(data, image_file)
     return jsonify(result), 201 if "error" not in result else 400
 
 @app.route("/recipes/<int:recipe_id>", methods=["PUT"])
 def update_recipe(recipe_id):
-    data = request.get_json()
-    result = service.update_recipe(recipe_id, data)
+    data = dict(request.form) if request.form else request.json()
+    image_file = request.files.get("image")
+    result = service.update_recipe(recipe_id, data, image_file)
     return jsonify(result), 200 if "error" not in result else 400
 
 @app.route("/recipes/<int:recipe_id>", methods=["DELETE"])

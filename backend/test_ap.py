@@ -2,6 +2,7 @@ import unittest
 from recipe_service import RecipeService
 from supabase import create_client, Client
 import os
+import io
 
 class RecipeServiceDatabaseTest(unittest.TestCase):
     @classmethod
@@ -77,6 +78,43 @@ class RecipeServiceDatabaseTest(unittest.TestCase):
         result = confirm_resp
         self.assertEqual(status, 404)
         self.assertIn("error", result)
+
+    def test_6_create_recipe_with_image(self):
+        fake_image = (io.BytesIO(b"fake image bytes"), "test.jpg")
+
+        data = {
+            "title": "ImageTest Brownie",
+            "description": "Testing image upload",
+            "ingredients": ["flour"],
+            "directions": ["mix"],
+            "category": "dessert",
+            "dietaryrestrictions": ["vegetarian"],
+            "minutestocomplete": 10,
+            "authorid": "97c33e9b-e74d-425b-8700-b7aa20ff9da7",
+            "authorname": "sarah_test",
+        }
+
+        # Assemble file-like object
+        class FakeFile:
+            def __init__(self, fileobj, name):
+                self.fileobj = fileobj
+                self.filename = name
+            def read(self):
+                return self.fileobj.read()
+
+        image_file = FakeFile(fake_image[0], fake_image[1])
+
+        result = self.service.create_recipe(data, image_file)
+        self.assertIn("data", result)
+
+        recipe = result["data"][0]
+        self.assertIn("photopath", recipe)
+        self.assertTrue(recipe["photopath"].startswith("http"))
+
+        # Cleanup
+        recipe_id = recipe["recipeid"]
+        delete_resp = self.service.delete_recipe(recipe_id)
+        self.assertEqual(delete_resp["message"], "Recipe deleted successfully")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
