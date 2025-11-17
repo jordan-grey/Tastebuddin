@@ -1,7 +1,9 @@
 import os   #accessing env varibles 
 from flask import Flask, jsonify, request, render_template   #Flask for webapp, jsonify for return JSON response
+from flask_cors import CORS
 from recipe_service import RecipeService
 from recipe_utility import RecipeUtility
+from user import User
 from dotenv import load_dotenv
 from supabase import create_client, Client 
 import uuid
@@ -9,6 +11,7 @@ from leaderboard_service import LeaderboardService
 
 
 app = Flask(__name__)
+CORS(app)  # allow frontend container to talk to backend
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
@@ -18,7 +21,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 service = RecipeService(supabase)
 utility = RecipeUtility(supabase)
 leaderboard_service = LeaderboardService(supabase)
-
+user = User(supabase)
 
 @app.route('/')
 def index():
@@ -31,6 +34,21 @@ def error_404(e):
 @app.errorhandler(403)
 def error_403(e):
     return render_template('403.html')
+
+@app.route("/user/<string:username>", methods=["GET"])
+def get_user_data(username):
+    result, status = user.get_user_with_username(username)
+    return jsonify(result), status
+
+
+
+@app.route("/signup", methods=["POST"])
+def signup():
+    # Retrieve form fields:
+    profiledata = request.get_json()  
+    user_instance = User(supabase)
+    result, status = user_instance.create_profile(profiledata)
+    return jsonify(result), status
 
 @app.route("/recipes", methods=["GET"])
 def get_all_recipes():

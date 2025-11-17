@@ -3,22 +3,22 @@ from supabase import create_client, Client
 from flask import jsonify
 import traceback
 
-url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_KEY")
-
-supabase: Client = create_client(url, key)
 
 
-class user:
-    def __init__(self, userdata:dict, uuid=""): #uuid is for testing. 
-        self.email = userdata["email"]
-        self.password = userdata["password"]
-        self.username = userdata["username"]
-        self.allergens= userdata["allergens"]
+class User:
+    def __init__(self, supabase, uuid=""): #uuid is for testing. 
+        self.email = ""
+        self.password = ""
+        self.username = ""
+        self.allergens= ""
         self.uuid = uuid
+        self.table_name = "users_public"
+        self.supabase = supabase
 
-    def create_auth(self):
-        response = supabase.auth.sign_up(    
+    def create_auth(self, authdata:dict):
+        self.email = authdata["email"]
+        self.password = authdata["password"]
+        response = self.supabase.auth.sign_up(    
             {        
                 "email": self.email,
                 "password": self.password
@@ -27,7 +27,9 @@ class user:
         print(response.user.id)
         self.uuid = response.user.id
 
-    def create_profile(self):
+    def create_profile(self, profiledata:dict):
+        self.username = profiledata["username"]
+        self.allergens= profiledata["allergens"]
         try:
             print(self.uuid)
             data = {"id": self.uuid, 
@@ -35,7 +37,7 @@ class user:
                     "allergens": self.allergens
                     }
             response = (
-                    supabase.table("users_public")
+                    self.supabase.table(self.table_name)
                     .insert(data)
                     .execute()
             )
@@ -45,18 +47,32 @@ class user:
         except Exception as e:
             return {"error": str(e)}
         
-    def get_user_with_id(uuid):
+    def get_user_with_id(self, uuid):
         response = (   
-            supabase.table("users_public")    
+            self.supabase.table(self.table_name)    
             .select("*") 
             .eq("id", uuid)   
             .execute())
         return response
     
-    def delete_profile(uuid): 
+    def get_user_with_username(self, username):
+        try:
+            response = (
+                self.supabase.table(self.table_name)    
+                .select("*") 
+                .eq("username", username)   
+                .execute()
+            )
+            if not response.data:
+                return {"error": "User not found"}, 404
+            return {"data": response.data}, 200
+        except Exception as e:
+            return {"error": str(e)}, 500
+
+    def delete_profile(self, uuid): 
         #primarly used for testing purposes, only deletes profile line not auth
         response = (   
-            supabase.table("users_public")    
+            self.supabase.table(self.table_name)    
             .delete() 
             .eq("id", uuid)   
             .execute())

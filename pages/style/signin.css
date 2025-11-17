@@ -153,6 +153,25 @@ textarea {
   -webkit-appearance: none;
 }
 
+.checkbox-group {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checkbox-option {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.checkbox-option input {
+  transform: scale(1.2);
+}
+
 .button:hover, .button:focus {
   background: #159e7f;
 }

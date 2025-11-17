@@ -65,18 +65,10 @@
         <div class="top-row">
           <div class="field-wrap">
             <label>
-              First Name<span class="req">*</span>
+              Public Username<span class="req">*</span>
             </label>
             <input type="text" required autocomplete="off" />
           </div>
-      
-          <div class="field-wrap">
-            <label>
-              Last Name<span class="req">*</span>
-            </label>
-            <input type="text" required autocomplete="off"/>
-          </div>
-        </div>
 
         <div class="field-wrap">
           <label>
@@ -91,8 +83,67 @@
           </label>
           <input type="password" required autocomplete="off"/>
         </div>
-        
-        <button type="submit" class="button button-block"/>Get Started</button>
+
+        <div class="field-wrap">
+        <label>
+          Allergens / Dietary Restrictions<span class="req">*</span>
+        </label>
+
+        <div class="checkbox-group">
+
+          <label class="checkbox-option">
+            <input type="checkbox" name="allergens" value="peanut" />
+            Peanut
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" name="allergens" value="treenuts" />
+            Tree Nuts
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" name="allergens" value="shellfish" />
+            Shellfish
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" name="allergens" value="fish" />
+            Fish
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" name="allergens" value="gluten" />
+            Gluten
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" name="allergens" value="dairy" />
+            Dairy
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" name="allergens" value="vegetarian" />
+            Vegetarian
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" name="allergens" value="pork" />
+            Pork
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" name="allergens" value="egg" />
+            Egg
+          </label>
+
+          <label class="checkbox-option">
+            <input type="checkbox" name="allergens" value="halal" />
+            Halal
+          </label>
+
+        </div>
+      </div>
+        <button type="submit" class="button button-block">Get Started</button>
         
       </form>
     </div>
@@ -130,17 +181,87 @@
   // When user clicks the submit button (button that says "GET STARTED")
   document.querySelector('#signup form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.querySelector('#signup input[type="email"]').value;
-    const password = document.querySelector('#signup input[type="password"]').value;
+    
+    const form = e.target;
+    const username = form.username.value.trim();
+    const allergens = Array.from(form.querySelectorAll('input[name="allergens"]:checked'))
+        .map(el => el.value);
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const profiledata = { username, allergens };
+    // Check username with backend
+    const usernameCheck = await fetch(`http://backend:5000/user/${encodeURIComponent(username)}`);
 
-    if (error) {
-      alert('Signup failed: ' + error.message);
-    } else {
-      alert('Signup successful! Check your email for a confirmation link.');
+    if (usernameCheck.ok) {
+        // Backend returned OK → USER EXISTS → BLOCK SIGNUP
+        document.getElementById("username-error").textContent = 
+            "Username already taken. Please choose another.";
+        return;  // <- STOP form submission
+    }
+
+    // If NOT OK (404) → username free → continue signup
+    if (usernameCheck.status === 404) {
+        document.getElementById("username-error").textContent = ""; // clear error
+        const email = document.querySelector('#signup input[type="email"]').value;
+        const password = document.querySelector('#signup input[type="password"]').value;
+        
+        const { data, error } = await supabase.auth.signUp({ email, password });
+
+        if (error) {
+          alert('Signup failed: ' + error.message);
+        } else {
+          alert('Signup successful! Check your email for a confirmation link.');
+        }
+        // that created auth now we want to create the profile line
+        try {
+          const res = await fetch("http://localhost:5000/signup", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(profiledata)
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+              // Backend returned an error
+              document.getElementById("signup-error").textContent = data.error;
+          } else {
+              // Success
+              document.getElementById("signup-error").textContent = "";
+              alert("Profile created successfully!");
+              console.log("Profile data:", data.data);
+          }
+
+      } catch (err) {
+          console.error("Network error:", err);
+          document.getElementById("signup-error").textContent = "Network error, try again.";
+      }
     }
   });
+
+
+async function getUser(username) {
+    try {
+        const res = await fetch(`http://backend:5000/user/${encodeURIComponent(username)}`);
+
+        // If the Flask route returns 404 or any error, handle it here:
+        if (!res.ok) {
+            // Parse the error response from backend
+            const errorData = await res.json();
+            console.log("User not found:", errorData);
+            return { error: true, data: errorData };
+        }
+
+        // User exists
+        const data = await res.json();
+        console.log("User found:", data);
+        return { error: false, data };
+
+    } catch (err) {
+        console.error("Network error:", err);
+        return { error: true, data: null };
+    }
+}
+
 </script>
 
 <!-- tab switching and label animation -->

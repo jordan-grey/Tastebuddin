@@ -52,7 +52,7 @@ class RecipeUtility:
         "gluten": "gluten",
         "dairy": "dairy",
         "vegetarian": "vegetarian",
-        "pork": "prok",
+        "pork": "pork",
         "egg": "egg",
         "eggs": "egg",
         "halal": "halal"
