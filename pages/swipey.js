@@ -7,13 +7,13 @@ if (!userID) {
     window.location.href = "signin.html"; // changed
 }
 
-// new fetch functionality
-fetch('http://localhost:5001/feed/${userID}')
-    .then(res => res.json())
-    .then(data => {
-        console.log("User feed: ", data),
-        renderFeed(data.data);
-    })
+// // new fetch functionality
+// fetch('http://localhost:5001/feed/${userID}')
+//     .then(res => res.json())
+//     .then(data => {
+//         console.log("User feed: ", data),
+//         renderFeed(data.data);
+//     })
 
 let recipes = [];
 let idx = 0;
@@ -24,10 +24,26 @@ let startX, currX;
 let dragging = false;
 
 async function loadRecipes() {
-    const res = await fetch(API_BASE + FEED_ENDPOINT);
-    const json = await res.json();
-    recipes = json.data || [];
-    showRecipe();
+    // const res = await fetch(API_BASE + FEED_ENDPOINT);
+    // const json = await res.json();
+    // recipes = json.data || [];
+    // showRecipe();
+    try {
+        const res = await fetch(`${API_BASE}/feed/${userID}`);
+        const json = await res.json();
+
+        recipes = json.data.recipes || json.data || [];
+
+        if (recipes.length === 0) {
+            showEmpty();
+            return;
+        }
+        showRecipe();
+
+    } catch (err) {
+        console.error("Feed error:", err);
+        showEmpty();
+    }
 }
 
 function showDefault() {
@@ -37,16 +53,25 @@ function showDefault() {
 }
 
 function showRecipe() {
-    if (recipes.length === 0) {
-        card.querySelector("#recipe-title").innerHTML = "No Recipes Available!";
-        return; // show error message and then exit
+    if (recipes.length === 0) return showEmpty();
+
+    const r = recipes[idx];
+
+    titleEl.innerHTML = r.title || "Untitled Recipe";
+
+    // display image if exists
+    if (r.photopath) {
+        imgEl.src = r.photopath;
+        imgEl.style.display = "block";
+    } else {
+        imgEl.style.display = "none";
     }
 
-    // populate the html with information
-    let r = recipes[idx];
-    
-
+    descEl.innerHTML = r.description || "(No description)";
+    ingEl.innerHTML = (r.ingredients || []).join("<br>");
+    dirEl.innerHTML = (r.directions || []).join("<br>");
 }
+
 
 // TODO: make a copy, change this to "likeAnim"
 function nextRecipe() {
