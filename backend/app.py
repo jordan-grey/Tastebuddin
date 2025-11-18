@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from supabase import create_client, Client 
 import uuid
 from leaderboard_service import LeaderboardService
+from user_service import UserService
 
 from flask_cors import CORS
 
@@ -23,6 +24,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 service = RecipeService(supabase)
 utility = RecipeUtility(supabase)
 leaderboard_service = LeaderboardService(supabase)
+user_service = UserService(supabase)
 
 
 @app.route('/')
@@ -137,6 +139,19 @@ def leaderboard_weekly():
 def leaderboard_authors():
     result, status = leaderboard_service.get_author_leaderboard(limit=10)
     return jsonify(result), status
+
+@app.route("/users", methods=["POST"])
+def create_user():
+    data = request.json
+    required = ["userid", "email", "firstname", "lastname"]
+
+    for field in required:
+        if field not in data:
+            return {"error": f"Missing field: {field}"}, 400
+
+    return user_service.create_user(
+        data["userid"], data["email"], data["firstname"], data["lastname"]
+         )
 
 if __name__ == '__main__':
     app.run(debug=True)

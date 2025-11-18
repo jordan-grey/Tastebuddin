@@ -144,11 +144,27 @@
 
     const { data, error } = await supabase.auth.signUp({ email, password });
 
-    if (error) {
-      alert('Signup failed: ' + error.message);
-    } else {
-      alert('Signup successful! Check your email for a confirmation link.');
-    }
+    if (!error) {
+    const user = data.user;
+
+    // store uuid
+    localStorage.setItem("tastebuddin_user_id", user.id);
+
+    // send to backend to create profile
+    await fetch("http://localhost:5001/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            userid: user.id,
+            email: email,
+            firstname: document.querySelector('#signup input[type="text"]').value,
+            lastname: document.querySelector('#signup .top-row input[type="text"]:nth-child(2)').value
+        })
+    });
+
+    alert("Signup successful!");
+}
+
   });
 </script>
 
