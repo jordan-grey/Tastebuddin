@@ -1,10 +1,26 @@
-# Use lightweight nginx server
-FROM nginx:alpine
+# Build stage
+FROM node:16-alpine AS builder
 
+# Set working directory
+WORKDIR /app
 
-# Copy your HTML, CSS, JS into the nginx web directory
-COPY . /usr/share/nginx/html
+# Copy package files and install dependencies
+COPY package.json package-lock.json ./
+RUN npm install
 
-# Expose port 80
+# Copy the rest of the application source code
+COPY . .
+
+# Build the React application
+RUN npm run build
+
+# Serve stage
+FROM nginx:1.25-alpine
+
+# Copy the built files from the builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# If React Router, add this custom Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 EXPOSE 80
-
