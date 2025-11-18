@@ -1,0 +1,26 @@
+body {
+  background: #88b6e7;
+}
+
+* {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.form-container {
+  background: #64e397;
+  color: #02111b;
+  padding: 40px;
+  max-width: 700px;
+  margin: 40px auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+input, textarea {
+  font-size: 1.1rem;
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
