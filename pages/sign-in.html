@@ -112,18 +112,27 @@
   // When user clicks submit button (button says "LOG IN")
   document.querySelector('#login form').addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const email = document.querySelector('#login input[type="email"]').value;
     const password = document.querySelector('#login input[type="password"]').value;
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+    });
 
     if (error) {
-      alert('Login failed: ' + error.message);
+        alert('Login failed: ' + error.message);
     } else {
-      alert('Login successful! Redirecting...');
-      window.location.href = 'home.html';
+        // ⭐ NEW: store UUID locally
+        const user = data.user;
+        localStorage.setItem("tastebuddin_user_id", user.id);
+
+        // Redirect to swipe page
+        window.location.href = "swipey.html";
     }
-  });
+});
+
 
   // Sign Up process
 

@@ -7,10 +7,15 @@ from supabase import create_client, Client
 import uuid
 from leaderboard_service import LeaderboardService
 
+from flask_cors import CORS
+
+
 
 app = Flask(__name__)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+CORS(app)
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
