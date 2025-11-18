@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tastebuddin Login</title>
+    <link rel="stylesheet" href="style/swipey.css">
+    <link rel="stylesheet" href="style/signin.css">
+</head>
+
+<body>
+<div id="container" class="recipe-viewport">
+    <div id="recipe-info">
+        <div id="recipe-image" class="recipe-background-img">
+            <img src="default-resources/empty-dish.jpg" alt="The default empty dish.">
+        </div>
+        <div id="recipe-header">
+            <h1 id="recipe-title">Recipe Name</h1>
+            <h2 id="recipe-est-time">Estimated time to complete</h2>
+            <h2 id="recipe-num-servings">Estimate # of Servings</h2>
+        </div>
+        <div id="recipe-body">
+            <p id="recipe-overview">Quick Overview</p>
+            <p id="recipe-allergen-tags">Allergen Tags</p> 
+            <!-- ^ this is going to be changed to be tag bubbles -->
+            <!-- not sure how i want to do that yet tho -->
+            <div id="recipe-ingredient-list-container">
+                <h3 id="recipe-ingredient-header">Ingredients</h3>
+                <ul id="recipe-ingredient-list">
+                    <li>First ingredient</li>
+                    <li>Second Ingredient</li>
+                </ul>
+            </div>
+            <div id="recipe-steps-container">
+                <h3 id="recipe-steps-header">Instructions</h3>
+                <ol id="recipe-steps-list">
+                    <li>Step 1</li>
+                    <li>Step 2</li>
+                </ol>
+            </div>
+            <div id="swipey-buttons">
+                <div id="reject-button" class="btn">
+                    <button>❌</button>
+                </div>
+                <div id="like-button" class="btn">
+                    <button>❤️</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="swipey.js"></script>
+</body>
+
+</html>

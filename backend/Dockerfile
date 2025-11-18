@@ -1,26 +1,25 @@
-# Python image
+# Use a lightweight Python image
 FROM python:3.11-slim
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy only requirements first (for caching)
+# Copy dependency file and install first (cache-friendly)
 COPY requirements.txt .
-
-# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the backend files
+# Copy backend files (app.py, recipe_service.py, etc.)
 COPY . .
 
-# Expose Flask port
+# Environment setup
+ENV PYTHONUNBUFFERED=1 \
+    FLASK_APP=app.py \
+    FLASK_RUN_HOST=0.0.0.0 \
+    FLASK_RUN_PORT=5000 \
+    FLASK_ENV=development
+
+# Expose port
 EXPOSE 5000
 
-# Environment variables
-ENV PYTHONUNBUFFERED=1
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_ENV=development
-
-# Run Flask server
-CMD ["flask", "run"]
+# Run Flask
+CMD ["python", "-m", "flask", "run"]

@@ -3,7 +3,7 @@ version: "3.9"
 services:
   backend:
     build: ./backend                # path to backend Dockerfile
-    container_name: cookswipe-backend
+    container_name: tastebuddin-backend
     ports:
       - "5001:5000"                 # host:container
     env_file:
