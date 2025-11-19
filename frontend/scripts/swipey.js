@@ -50,7 +50,7 @@ let startX, currX;
 let dragging = false;
 
 // more references
-let titleRef = document.querySelector("#recipe-title");
+
 let imgEl = document.querySelector("#recipe-image");
 let descEl = document.querySelector("#recipe-overview");
 let ingEl = document.querySelector("#recipe-ingredient-list");
