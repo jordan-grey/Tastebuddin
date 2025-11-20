@@ -2,10 +2,10 @@ import os   #accessing env varibles
 from flask import Flask, jsonify, request, render_template   #Flask for webapp, jsonify for return JSON response
 from recipe_service import RecipeService
 from recipe_utility import RecipeUtility
-from dotenv import load_dotenv
 from supabase import create_client, Client 
 import uuid
 from leaderboard_service import LeaderboardService
+from user_service import UserService
 
 from flask_cors import CORS
 
@@ -23,6 +23,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 service = RecipeService(supabase)
 utility = RecipeUtility(supabase)
 leaderboard_service = LeaderboardService(supabase)
+user_service = UserService(supabase)
 
 
 @app.route('/')
@@ -137,6 +138,81 @@ def leaderboard_weekly():
 def leaderboard_authors():
     result, status = leaderboard_service.get_author_leaderboard(limit=10)
     return jsonify(result), status
+
+@app.route("/user/exists/<username>", methods=["GET"])
+def check_username_exists(username):
+    """
+    Returns {exists: true/false} depending on whether
+    the username already exists in users_public.
+    """
+    try:
+        # IMPORTANT: match your real table name
+        result = (
+            supabase
+            .table("users_public")
+            .select("username")
+            .eq("username", username)
+            .execute()
+        )
+
+        exists = len(result.data) > 0
+        return jsonify({"exists": exists}), 200
+
+    except Exception as e:
+        print("ERROR in /user/exists:", e)
+        return jsonify({"exists": False, "error": str(e)}), 500
+
+
+
+
+@app.route("/user/create", methods=["POST"])
+def create_user_route():
+    data = request.json
+    user_id = data.get("user_id")
+    username = data.get("username")
+    allergens = data.get("allergens", [])
+
+    if not user_id or not username:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # 1) Validate username format (ALWAYS enforce this server-side)
+    import re
+    if not re.match(r"^[a-zA-Z0-9_]{3,20}$", username):
+        return jsonify({"error": "Invalid username format"}), 400
+
+    # 2) Ensure username is unique
+    exists_check = (
+        supabase
+        .table("users_public")
+        .select("username")
+        .eq("username", username)
+        .execute()
+    )
+
+    if exists_check.data:
+        return jsonify({"error": "Username already taken"}), 409
+
+    # 3) Create the user using your user_service
+    result, status = user_service.create_user(user_id, username)
+
+    if status != 200:
+        return jsonify(result), status
+
+    # 4) Add allergens, if provided
+    if allergens:
+        user_service.update_allergens(user_id, allergens)
+
+    return jsonify({"message": "User created", "data": result}), 200
+
+
+@app.route("/config")
+def get_config():
+    return jsonify({
+        "SUPABASE_URL": os.getenv("SUPABASE_URL"),
+        "SUPABASE_ANON_KEY": os.getenv("SUPABASE_ANON_KEY")
+    })
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -2,207 +2,284 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Log In / Sign Up Form</title>
+  <title>Tastebuddin – Log In / Sign Up</title>
+
   <link rel="stylesheet" href="../style/signin.css">
-  
-  <!-- import Montserrat -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-  
-   <!-- JQuery Library -->
+
+  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  
-  <!-- Supabase JS library -->
+
+  <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
 
 <div class="form">
-  
-  <!-- Tab headers -->
+
+  <!-- Tabs -->
   <ul class="tab-group">
     <li class="tab active"><a href="#login">Log In</a></li>
     <li class="tab"><a href="#signup">Sign Up</a></li>
   </ul>
-  
+
   <div class="tab-content">
-    
-    <!-- Log in tab (this one is shown by default) -->
-    <div id="login">   
+
+    <!-- LOGIN TAB -->
+    <div id="login">
       <h1>TASTEBUDDIN</h1>
-      
-      <form action="/" method="post">
-        <!-- Email input -->
+
+      <form id="loginForm">
         <div class="field-wrap">
-          <label>
-            Email Address<span class="req">*</span>
-          </label>
-          <input type="email" required autocomplete="off"/>
+          <label>Email Address<span class="req">*</span></label>
+          <input id="loginEmail" type="email" required autocomplete="off">
         </div>
-        
-        <!-- Password input -->
+
         <div class="field-wrap">
-          <label>
-            Password<span class="req">*</span>
-          </label>
-          <input type="password" required autocomplete="off"/>
+          <label>Password<span class="req">*</span></label>
+          <input id="loginPassword" type="password" required autocomplete="off">
         </div>
-        
-        <!-- Forgot password button (doesnt work yet)-->
+
         <p class="forgot"><a href="#">Forgot Password?</a></p>
-        
-        <!-- Submit button -->
-        <button class="button button-block"/>Log In</button>
-        
+
+        <button class="button button-block" type="submit">Log In</button>
       </form>
     </div>
-    
-    <!-- Sign up tab -->
-    <div id="signup">   
+
+    <!-- SIGNUP TAB -->
+    <div id="signup">
       <h1>Sign Up for Free</h1>
-      
-      <form action="/" method="post">
-      
+
+      <form id="signupForm">
+
         <div class="top-row">
           <div class="field-wrap">
-            <label>
-              First Name<span class="req">*</span>
-            </label>
-            <input type="text" required autocomplete="off" />
+            <label>First Name<span class="req">*</span></label>
+            <input id="signupFirst" type="text" required autocomplete="off">
           </div>
-      
+
           <div class="field-wrap">
-            <label>
-              Last Name<span class="req">*</span>
-            </label>
-            <input type="text" required autocomplete="off"/>
+            <label>Last Name<span class="req">*</span></label>
+            <input id="signupLast" type="text" required autocomplete="off">
           </div>
         </div>
 
         <div class="field-wrap">
-          <label>
-            Email Address<span class="req">*</span>
-          </label>
-          <input type="email" required autocomplete="off"/>
+          <label>Username<span class="req">*</span></label>
+          <input id="signupUsername" type="text" required autocomplete="off">
+          <div id="usernameError" class="error-message"></div>
         </div>
-        
+
         <div class="field-wrap">
-          <label>
-            Set Password<span class="req">*</span>
-          </label>
-          <input type="password" required autocomplete="off"/>
+          <label>Email Address<span class="req">*</span></label>
+          <input id="signupEmail" type="email" required autocomplete="off">
         </div>
+
+        <div class="field-wrap">
+          <label>Set Password<span class="req">*</span></label>
+          <input id="signupPassword" type="password" required autocomplete="off">
+        </div>
+
+        <div class="field-wrap">
+          <label>Allergens (select all that apply)</label>
         
-        <button type="submit" class="button button-block"/>Get Started</button>
+          <select id="signupAllergens" multiple class="allergen-select">
+            <option value="peanut">Peanuts</option>
+            <option value="treenuts">Tree Nuts</option>
+            <option value="shellfish">Shellfish</option>
+            <option value="fish">Fish</option>
+            <option value="gluten">Gluten</option>
+            <option value="dairy">Dairy</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="pork">Pork</option>
+            <option value="egg">Eggs</option>
+            <option value="halal">Halal</option>
+          </select>
         
+          <small class="allergen-help">Hold ⌘ (Mac) or CTRL (Windows) to select multiple</small>
+        </div>        
+
+        <button class="button button-block" type="submit">Get Started</button>
+
       </form>
     </div>
-    
+
   </div> <!-- /tab-content -->
-  
+
 </div> <!-- /form -->
 
-
 <script>
-  // Initialize Supabase client
-  const SUPABASE_URL = 'https://nxzaxhgyzapnnqcfjxpn.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54emF4aGd5emFwbm5xY2ZqeHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxMTQzMTIsImV4cCI6MjA3NTY5MDMxMn0.bzW-RrlsyoZvvfWLh3YpZ0DO7WTKlNwEMSDK1V_3joc';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  // Log In process
+/* ========================================================
+   LOAD SUPABASE CONFIG FROM FRONTEND CONFIG FILE
+   ======================================================== */
+   let supabaseClient = null;
 
-  // When user clicks submit button (button says "LOG IN")
-  document.querySelector('#login form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+async function loadSupabase() {
+  try {
+    // Load /frontend/config/config.json relative to pages/
+    const cfg = await fetch("../config/config.json").then(res => res.json());
 
-    const email = document.querySelector('#login input[type="email"]').value;
-    const password = document.querySelector('#login input[type="password"]').value;
+    supabaseClient = window.supabase.createClient(
+      cfg.SUPABASE_URL,
+      cfg.SUPABASE_ANON_KEY
+    );
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-    });
+    console.log("Supabase loaded:", cfg.SUPABASE_URL);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to load Supabase config: " + err);
+  }
+}
 
-    if (error) {
-        alert('Login failed: ' + error.message);
-    } else {
-        // ⭐ NEW: store UUID locally
-        const user = data.user;
-        localStorage.setItem("tastebuddin_user_id", user.id);
+loadSupabase();
 
-        // Redirect to swipe page
-        window.location.href = "swipey.html";
-    }
+
+/* ========================================================
+   LOGIN ACTION
+   ======================================================== */
+document.querySelector("#loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const email = document.querySelector("#loginEmail").value;
+  const password = document.querySelector("#loginPassword").value;
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    alert("Login failed: " + error.message);
+    return;
+  }
+
+  const user_id = data.user.id;
+  localStorage.setItem("tastebuddin_user_id", user_id);
+
+  window.location.href = "swipey.html";
 });
 
+/* ========================================================
+   SIGNUP ACTION
+   ======================================================== */
+document.querySelector("#signupForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-  // Sign Up process
+  const fname = document.querySelector("#signupFirst").value;
+  const lname = document.querySelector("#signupLast").value;
+  const email = document.querySelector("#signupEmail").value;
+  const password = document.querySelector("#signupPassword").value;
+  const username = document.querySelector("#signupUsername").value;
+  const allergens = Array.from(
+    document.querySelector("#signupAllergens").selectedOptions
+  ).map(opt => opt.value);
 
-  // When user clicks the submit button (button that says "GET STARTED")
-  document.querySelector('#signup form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.querySelector('#signup input[type="email"]').value;
-    const password = document.querySelector('#signup input[type="password"]').value;
+  /* -----------------------------------------
+     USERNAME VALIDATION 
+     ----------------------------------------- */
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const errBox = document.getElementById("usernameError");
 
-    if (error) {
-      alert('Signup failed: ' + error.message);
-    } else {
-      alert('Signup successful! Check your email for a confirmation link.');
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      errBox.textContent = "Username can only contain letters, numbers, and underscores.";
+      errBox.style.display = "block";
+      return;
     }
-  });
-</script>
 
-<!-- tab switching and label animation -->
-<script>
+    if (username.length < 3 || username.length > 20) {
+      errBox.textContent = "Username must be between 3 and 20 characters.";
+      errBox.style.display = "block";
+      return;
+    }
+
+  /*  check if username already exists */
+  const existsRes = await fetch(`http://localhost:5001/user/exists/${username}`);
+  const existsData = await existsRes.json();
+
+  if (existsData.exists) {
+  const errBox = document.getElementById("usernameError");
+  errBox.textContent = "That username is already taken — try another one.";
+  errBox.style.display = "block";
+  return;
+  } 
+  else {
+    document.getElementById("usernameError").style.display = "none";
+  }
+
+
+  document.getElementById("usernameError").style.display = "none";
+
+
+
+  // 1) SUPABASE AUTH SIGNUP
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) {
+    alert("Signup failed: " + error.message);
+    return;
+  }
+
+  const user_id = data.user.id;
+
+  // 2) CREATE PROFILE IN BACKEND
+  await fetch("http://localhost:5001/user/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: user_id,
+      username: username,
+      allergens: allergens
+    })
+  });
+
+  // 3) SAVE LOCALLY
+  localStorage.setItem("tastebuddin_user_id", user_id);
+
+  alert("Signup successful! Redirecting...");
+
+  window.location.href = "swipey.html";
+});
+
+/* ========================================================
+   UI TAB & LABEL BEHAVIOR
+   ======================================================== */
 $('.form').find('input, textarea').on('keyup blur focus', function (e) {
   var $this = $(this),
       label = $this.prev('label');
 
-  // when user types into the field
   if (e.type === 'keyup') {
-    // If the input is empty, label moves back down
     if ($this.val() === '') {
       label.removeClass('active highlight');
-    // If input has text, label stays floated and highlighted
     } else {
       label.addClass('active highlight');
     }
-
-  // when user clicks away
   } else if (e.type === 'blur') {
-    // If the field is empty after clickig away, we remove the highlight from around the box
     if ($this.val() === '') {
       label.removeClass('active highlight');
-    // If the field has text after clicking away, remove highlight from label
     } else {
       label.removeClass('highlight');
     }
-
-  // when user clicks into the box
   } else if (e.type === 'focus') {
-    // if the field is empty, remove highlight
     if ($this.val() === '') {
       label.removeClass('highlight');
-    // if the field has text, highlight the label (when users has clicked in the box)
     } else if ($this.val() !== '') {
       label.addClass('highlight');
     }
   }
 });
 
-// tab switching
 $('.tab a').on('click', function (e) {
   e.preventDefault();
-  
-  // mark clicked tab as active
+
   $(this).parent().addClass('active');
-  // remove the acive class from other tabs
   $(this).parent().siblings().removeClass('active');
-  // set target to the correct tab content (#login or #signup)
+
   target = $(this).attr('href');
-  // hide all content but the correct tab content
   $('.tab-content > div').not(target).hide();
-  // fade in the content
   $(target).fadeIn(600);
 });
 </script>

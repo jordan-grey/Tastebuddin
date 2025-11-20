@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Recipe Upload</title>
+</head>
+<body>
+<h2>Upload Recipe + Image</h2>
+
+<form action="http://127.0.0.1:5001/recipes" 
+      method="post" 
+      enctype="multipart/form-data">
+
+    Title: <input type="text" name="title" value="HTML Upload Test"><br><br>
+
+    Description: <input type="text" name="description" value="Uploaded from HTML"><br><br>
+
+    Ingredients: <input type="text" name="ingredients" value='["flour","sugar"]'><br><br>
+
+    Directions: <input type="text" name="directions" value='["mix","bake"]'><br><br>
+
+    Category: <input type="text" name="category" value="dessert"><br><br>
+
+    Dietary: <input type="text" name="dietaryrestrictions" value='["vegetarian"]'><br><br>
+
+    Minutes: <input type="number" name="minutestocomplete" value="10"><br><br>
+
+    Author ID: <input type="text" name="authorid" value="97c33e9b-e74d-425b-8700-b7aa20ff9da7"><br><br>
+
+    Author Name: <input type="text" name="authorname" value="sarah_test"><br><br>
+
+    Image: <input type="file" name="image"><br><br>
+
+    <button type="submit">Upload Recipe</button>
+</form>
+
+</body>
+</html>

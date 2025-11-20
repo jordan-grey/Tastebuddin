@@ -1,47 +1,48 @@
 const API_BASE = "http://localhost:5001";
-// const FEED_ENDPOINT = "/feed/sarah_test";
+
 
 const userID = localStorage.getItem("tastebuddin_user_id");
 
 if (!userID) {
-    window.location.href = "signin.html"; // changed
+    window.location.href = "sign-in.html"; // changed
 }
 
 // // new fetch functionality
-// fetch('http://localhost:5001/feed/${userID}')
-//     .then(res => res.json())
-//     .then(data => {
-//         console.log("User feed: ", data),
-//         renderFeed(data.data);
-//     })
+fetch(`http://localhost:5001/feed/${userID}`)
+    .then(res => res.json())
+    .then(data => {
+        console.log("User feed: ", data);
+        renderFeed(data.data);
+    })
 
-let recipes = [
-        {
-            "title": "UnitTest Brownie",
-            "description": "A chocolate brownie created by tests.",
-            "ingredients": ["flour", "sugar", "cocoa"],
-            "directions": ["mix", "bake"],
-            "category": "dessert",
-            "dietaryrestrictions": ["vegetarian"],
-            "minutestocomplete": 30,
-            "authorid": "fce74316-e465-412b-8e57-8ff7cbd72d3d",
-            "authorname": "test_kadee",
-            "photopath": "https://upload.wikimedia.org/wikipedia/commons/6/68/Chocolatebrownie.JPG"
+// let recipes = [
+//         {
+//             "title": "UnitTest Brownie",
+//             "description": "A chocolate brownie created by tests.",
+//             "ingredients": ["flour", "sugar", "cocoa"],
+//             "directions": ["mix", "bake"],
+//             "category": "dessert",
+//             "dietaryrestrictions": ["vegetarian"],
+//             "minutestocomplete": 30,
+//             "authorid": "fce74316-e465-412b-8e57-8ff7cbd72d3d",
+//             "authorname": "test_kadee",
+//             "photopath": "https://upload.wikimedia.org/wikipedia/commons/6/68/Chocolatebrownie.JPG"
 
-        },
-        {
-        "title": "Fluffy Buttermilk Pancakes",
-            "description": "Classic fluffy pancakes perfect for a weekend breakfast.",
-            "ingredients": ["flour","buttermilk","eggs","baking powder","butter"],
-            "directions": ["In a large mixing bowl, whisk together the flour, sugar, baking powder, baking soda, and salt.","In a separate bowl, whisk the buttermilk, eggs, and melted butter until smooth.","Pour the wet ingredients into the dry mixture and gently fold until just combined. Do not overmix; some lumps are fine.","Heat a lightly buttered or oiled skillet over medium heat.","Scoop 1/4 cup of batter onto the skillet for each pancake.","Cook until bubbles form on the surface and the edges look set, about 2-3 minutes","Flip and cook the other side until golden brown, 1-2 minutes more.","Serve warm with maple syrup, fruit, or powdered sugar."],
-            "category": "breakfast",
-            "dietaryrestrictions": ["dairy", "gluten"],
-            "minutestocomplete": 25,
-            "authorid": "fce74316-e465-412b-8e57-8ff7cbd72d3d",
-            "authorname": "test_kadee",
-            "photopath": "https://www.inspiredtaste.net/wp-content/uploads/2025/07/Pancake-Recipe-1.jpg"
-    }
-];
+//         },
+//         {
+//         "title": "Fluffy Buttermilk Pancakes",
+//             "description": "Classic fluffy pancakes perfect for a weekend breakfast.",
+//             "ingredients": ["flour","buttermilk","eggs","baking powder","butter"],
+//             "directions": ["In a large mixing bowl, whisk together the flour, sugar, baking powder, baking soda, and salt.","In a separate bowl, whisk the buttermilk, eggs, and melted butter until smooth.","Pour the wet ingredients into the dry mixture and gently fold until just combined. Do not overmix; some lumps are fine.","Heat a lightly buttered or oiled skillet over medium heat.","Scoop 1/4 cup of batter onto the skillet for each pancake.","Cook until bubbles form on the surface and the edges look set, about 2-3 minutes","Flip and cook the other side until golden brown, 1-2 minutes more.","Serve warm with maple syrup, fruit, or powdered sugar."],
+//             "category": "breakfast",
+//             "dietaryrestrictions": ["dairy", "gluten"],
+//             "minutestocomplete": 25,
+//             "authorid": "fce74316-e465-412b-8e57-8ff7cbd72d3d",
+//             "authorname": "test_kadee",
+//             "photopath": "https://www.inspiredtaste.net/wp-content/uploads/2025/07/Pancake-Recipe-1.jpg"
+//     }
+// ];
+let recipes = [];
 let idx = 0;
 
 // rewrite this to be different
@@ -57,27 +58,49 @@ let ingEl = document.querySelector("#recipe-ingredient-list");
 let dirEl = document.querySelector("#recipe-steps-list");
 let timeEl = document.querySelector("#recipe-est-time");
 
+
+function renderFeed(feedData) {
+    console.log("Rendering feed:", feedData);
+
+    if (!feedData || feedData.length === 0) {
+        showDefault();
+        return;
+    }
+
+    // Save backend feed into global recipes list
+    recipes = feedData;
+
+    // reset index
+    idx = 0;
+
+    // show first recipe
+    showRecipe();
+}
+
 async function loadRecipes() {
     // const res = await fetch(API_BASE + FEED_ENDPOINT);
     // const json = await res.json();
     // recipes = json.data || [];
     // showRecipe();
-    // try {
-    //     // const res = await fetch(`${API_BASE}/feed/${userID}`);
-    //     // const json = await res.json();
+    try {
+        const res = await fetch(`${API_BASE}/feed/${userID}`);
+        const json = await res.json();
 
-    //     // recipes = json.data.recipes || json.data || [];
+        recipes = json.data.recipes || json.data || [];
+        console.log("Recipes: ", recipes);
 
-    //     if (recipes.length === 0) {
-    //         // showEmpty();
-    //         return;
-    //     }
-    //     showRecipe();
+        if (recipes.length === 0) {
+            // showEmpty();
+            console.log("Recipes is of length 0.");
+            return;
+        }
+        
+        showRecipe();
 
-    // } catch (err) {
-    //     console.error("Feed error:", err);
-    //     // showEmpty();
-    // }
+    } catch (err) {
+        console.error("Feed error:", err);
+        // showEmpty();
+    }
 }
 
 function showDefault() {
@@ -93,19 +116,33 @@ function showRecipe() {
 
     titleRef.innerHTML = r.title || "Untitled Recipe";
 
-    // display image if exists
+    // photo
     if (r.photopath) {
         imgEl.src = r.photopath;
         imgEl.style.display = "block";
     } else {
-        imgEl.style.display = "none";
+        imgEl.src = "default-resources/empty-dish.jpg";
     }
 
+    // description
     descEl.innerHTML = r.description || "(No description)";
-    ingEl.innerHTML = (r.ingredients || []).join("<br>");
-    dirEl.innerHTML = (r.directions || []).join("<br>");
-    timeEl.innerHTML = (r.minutestocomplete  + " Minutes" || "NA");
+
+    // ingredients: array → HTML list
+    ingEl.innerHTML = (r.ingredients || [])
+        .map(i => `<li>${i}</li>`)
+        .join("");
+
+    // directions: array → HTML list
+    dirEl.innerHTML = (r.directions || [])
+        .map(step => `<li>${step}</li>`)
+        .join("");
+
+    // estimated time
+    timeEl.innerHTML = r.minutestocomplete
+        ? `${r.minutestocomplete} Minutes`
+        : "N/A";
 }
+
 
 
 // TODO: make a copy, change this to "likeAnim"
