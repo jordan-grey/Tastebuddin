@@ -8,12 +8,12 @@ if (!userID) {
 }
 
 // // new fetch functionality
-// fetch('http://localhost:5001/feed/${userID}')
-//     .then(res => res.json())
-//     .then(data => {
-//         console.log("User feed: ", data),
-//         renderFeed(data.data);
-//     })
+fetch('http://localhost:5001/feed/${userID}')
+    .then(res => res.json())
+    .then(data => {
+        console.log("User feed: ", data),
+        renderFeed(data.data);
+    })
 
 let recipes = [
         {
