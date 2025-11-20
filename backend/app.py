@@ -127,17 +127,17 @@ def is_valid_uuid(value):
 @app.route("/leaderboard/daily", methods=["GET"])
 def get_daily_leaderboard():
     result, status = leaderboard_service.get_daily_leaderboard(limit=10)
-    return jsonify(result), status
+    return jsonify({"data": result}), status
 
 @app.route("/leaderboard/weekly", methods=["GET"])
 def leaderboard_weekly():
     result, status = leaderboard_service.get_weekly_leaderboard(limit=10)
-    return jsonify(result), status
+    return jsonify({"data": result}), status
 
 @app.route("/leaderboard/authors", methods=["GET"])
 def leaderboard_authors():
     result, status = leaderboard_service.get_author_leaderboard(limit=10)
-    return jsonify(result), status
+    return jsonify({"data": result}), status
 
 @app.route("/user/exists/<username>", methods=["GET"])
 def check_username_exists(username):
