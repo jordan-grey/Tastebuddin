@@ -8,21 +8,35 @@ body {
     justify-content: center;
     align-items: center;
 }
+* {
+    font-family: 'Montserrat', sans-serif;
+}
 
-#container {
-    position: relative;
-    margin-top: 50px;
-    width: 70%;
-    height: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 h1 { /* TASTEBUDDIN */
   text-align: center;
-  color: #02111b;
+  color: #64e397;
   font-weight: 300;
   font-size: 80px;
   margin: 0 0 45px;
   font-weight: 700;
+  flex-direction: row;
+}
+#sign-in-out-button {
+    padding: 30px;
+    background-color: #64e397;
+    color: #FFFFFF;
+    text-align:center;
+    border-radius: 5px;
+    display: flex;
+    justify-content: right;
+    flex-direction: row;
 }

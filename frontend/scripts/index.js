@@ -26,10 +26,7 @@ if (userID) {
 } else {
     // For someone who is logged out
     // Log in button id="sign-in-out-button"
-    signin_button.innerHTML = "Sign In/Log In";
-    if (document.getElementById("sign-in-out-button").onclick) {
-        window.location.href = "sign-in.html"; // changed
-    }
+    
     
 
     // Describe how amazing it is *wiggles eyebrows*
