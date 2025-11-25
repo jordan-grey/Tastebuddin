@@ -190,3 +190,23 @@ class RecipeUtility:
         feed = self.filter_unseen_recipes(safe, unseen)
 
         return feed
+    
+    def get_recipe_by_id(self, recipe_id: int):
+        """Return a single recipe row by its ID."""
+        try:
+            res = (
+                self.supabase
+                .table(self.recipe_table)
+                .select("*")
+                .eq("id", recipe_id)
+                .limit(1)
+                .execute()
+            )
+
+            if not res.data:
+                return {"error": "Recipe not found"}, 404
+
+            return {"data": res.data[0]}, 200
+
+        except Exception as e:
+            return {"error": str(e)}, 500
