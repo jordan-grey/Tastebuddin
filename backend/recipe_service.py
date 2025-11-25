@@ -107,6 +107,38 @@ class RecipeService:
             recipe = response.data[0]
             recipe_id = recipe["recipeid"]
 
+            try:
+                # Get all users
+                users_res = self.supabase.table("users_public").select("*").execute()
+                users = users_res.data or []
+
+                # Get allergens from the recipe
+                recipe_allergens = recipe.get("dietaryrestrictions", []) or []
+                if isinstance(recipe_allergens, str):
+                    recipe_allergens = [recipe_allergens]
+
+                for user in users:
+                    user_id = user["id"]
+                    user_allergens = user.get("allergens", []) or []
+
+                    # skip if recipe conflicts with user allergens
+                    if any(a in recipe_allergens for a in user_allergens):
+                        continue
+
+                    unseen = user.get("unseen_recipes", []) or []
+
+                    # Add if not already there
+                    if recipe_id not in unseen:
+                        unseen.append(recipe_id)
+
+                        self.supabase.table("users_public") \
+                            .update({"unseen_recipes": unseen}) \
+                            .eq("id", user_id) \
+                            .execute()
+
+            except Exception as e:
+                print("[WARN] Failed updating user unseen_recipes:", e)
+
             # If image exists → upload + update recipe
             if image_file:
                 url = self.upload_image(image_file, recipe_id)

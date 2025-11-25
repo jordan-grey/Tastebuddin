@@ -193,7 +193,28 @@ def create_user_route():
         return jsonify({"error": "Username already taken"}), 409
 
     # 3) Create the user using your user_service
-    result, status = user_service.create_user(user_id, username)
+
+    recipes_response = (
+        supabase.table("recipes_public")
+        .select("recipeid, dietaryrestrictions")
+        .execute()
+    )
+
+    all_recipes = recipes_response.data or []
+
+    # 2. Filter with simplified function
+    unseen_ids = utility.filter_unseen_by_allergens(
+        all_recipes,
+        allergens
+    )
+
+    # 2. Run the allergen filter (returns IDs only)
+    filtered_unseen_ids = utility.filter_unseen_by_allergens(
+        all_recipes, allergens
+    )
+
+
+    result, status = user_service.create_user(user_id, username, allergens, filtered_unseen_ids)
 
     if status != 200:
         return jsonify(result), status
@@ -203,6 +224,36 @@ def create_user_route():
         user_service.update_allergens(user_id, allergens)
 
     return jsonify({"message": "User created", "data": result}), 200
+
+
+@app.route("/user/like", methods=["POST"])
+def like_recipe_route():
+    data = request.json
+
+    user_id = data.get("user_id")
+    recipe_id = data.get("recipeid")
+    author_id = data.get("author_id")
+
+    if not user_id or recipe_id is None or not author_id:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    result, status = user_service.like_recipe(user_id, recipe_id, author_id)
+    return jsonify(result), status
+
+
+
+@app.route("/user/dislike", methods=["POST"])
+def dislike_recipe_route():
+    data = request.json
+
+    user_id = data.get("user_id")
+    recipe_id = data.get("recipe_id")
+
+    if not user_id or recipe_id is None:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    result, status = user_service.dislike_recipe(user_id, recipe_id)
+    return jsonify(result), status
 
 
 @app.route("/config")
