@@ -263,6 +263,18 @@ def get_config():
         "SUPABASE_ANON_KEY": os.getenv("SUPABASE_ANON_KEY")
     })
 
+@app.route("/user/<user_id>/liked", methods=["GET"])
+def get_liked_recipes(user_id):
+    svc = RecipeService(supabase)
+    data, status = svc.get_liked_recipes(user_id)
+    return jsonify(data), status
+
+
+@app.route("/recipe/<int:recipe_id>", methods=["GET"])
+def get_recipe(recipe_id):
+    svc = RecipeService(supabase)
+    data, status = svc.get_recipe_by_id(recipe_id)
+    return jsonify(data), status
 
 
 if __name__ == '__main__':

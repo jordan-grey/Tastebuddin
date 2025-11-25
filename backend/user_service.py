@@ -124,12 +124,38 @@ class UserService:
                 .eq("id", user_id)
                 .execute()
             )
-
             return {"data": res.data}, 200
 
         except Exception as e:
             return {"error": str(e)}, 500
 
+
+    def get_liked_recipes(self, user_id: str):
+            """
+            Returns all recipe rows whose IDs appear in user's liked_recipes list.
+            """
+
+            # 1) Fetch the user profile
+            user_res = self.supabase.table(self.user_table).select("*").eq("id", user_id).execute()
+
+            if not user_res.data:
+                return {"error": "User not found"}, 404
+
+            liked_ids = user_res.data[0].get("liked_recipes", [])
+
+            # If empty, return empty list
+            if not liked_ids:
+                return {"data": []}, 200
+
+            # 2) Fetch recipes matching these IDs
+            recipes_res = (
+                self.supabase.table(self.recipe_table)
+                .select("*")
+                .in_("id", liked_ids)
+                .execute()
+            )
+
+            return {"data": recipes_res.data}, 200
 
     # -------------------------------------------------
     def unlike_recipe(self, user_id: str, recipe_id: int, author_id: str):
