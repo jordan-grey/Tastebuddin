@@ -32,7 +32,11 @@ class UserServiceDatabaseTest(unittest.TestCase):
 
         cls.user_id = auth_res.user.id
 
-        cls.service.create_user(cls.user_id, username="test_user")
+        allergens = ["dairy"]
+        unseen = []   
+
+        # FIXED: Must pass all params
+        cls.service.create_user(cls.user_id, "test_user", allergens, unseen)
 
         # ---------------------------------------------------------
         # Create AUTHOR USER
@@ -46,7 +50,9 @@ class UserServiceDatabaseTest(unittest.TestCase):
 
         cls.author_id = auth_author.user.id
 
-        cls.service.create_user(cls.author_id, username="author_test")
+        # Author has no allergies and starts with empty unseen list
+        cls.service.create_user(cls.author_id, "author_test", [], [])
+
 
     # ---------------------------------------------------------
     def test_1_create_user(self):

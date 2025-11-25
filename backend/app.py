@@ -127,17 +127,17 @@ def is_valid_uuid(value):
 @app.route("/leaderboard/daily", methods=["GET"])
 def get_daily_leaderboard():
     result, status = leaderboard_service.get_daily_leaderboard(limit=10)
-    return jsonify(result), status
+    return jsonify({"data": result}), status
 
 @app.route("/leaderboard/weekly", methods=["GET"])
 def leaderboard_weekly():
     result, status = leaderboard_service.get_weekly_leaderboard(limit=10)
-    return jsonify(result), status
+    return jsonify({"data": result}), status
 
 @app.route("/leaderboard/authors", methods=["GET"])
 def leaderboard_authors():
     result, status = leaderboard_service.get_author_leaderboard(limit=10)
-    return jsonify(result), status
+    return jsonify({"data": result}), status
 
 @app.route("/user/exists/<username>", methods=["GET"])
 def check_username_exists(username):
@@ -193,7 +193,28 @@ def create_user_route():
         return jsonify({"error": "Username already taken"}), 409
 
     # 3) Create the user using your user_service
-    result, status = user_service.create_user(user_id, username)
+
+    recipes_response = (
+        supabase.table("recipes_public")
+        .select("recipeid, dietaryrestrictions")
+        .execute()
+    )
+
+    all_recipes = recipes_response.data or []
+
+    # 2. Filter with simplified function
+    unseen_ids = utility.filter_unseen_by_allergens(
+        all_recipes,
+        allergens
+    )
+
+    # 2. Run the allergen filter (returns IDs only)
+    filtered_unseen_ids = utility.filter_unseen_by_allergens(
+        all_recipes, allergens
+    )
+
+
+    result, status = user_service.create_user(user_id, username, allergens, filtered_unseen_ids)
 
     if status != 200:
         return jsonify(result), status
@@ -205,6 +226,36 @@ def create_user_route():
     return jsonify({"message": "User created", "data": result}), 200
 
 
+@app.route("/user/like", methods=["POST"])
+def like_recipe_route():
+    data = request.json
+
+    user_id = data.get("user_id")
+    recipe_id = data.get("recipeid")
+    author_id = data.get("author_id")
+
+    if not user_id or recipe_id is None or not author_id:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    result, status = user_service.like_recipe(user_id, recipe_id, author_id)
+    return jsonify(result), status
+
+
+
+@app.route("/user/dislike", methods=["POST"])
+def dislike_recipe_route():
+    data = request.json
+
+    user_id = data.get("user_id")
+    recipe_id = data.get("recipe_id")
+
+    if not user_id or recipe_id is None:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    result, status = user_service.dislike_recipe(user_id, recipe_id)
+    return jsonify(result), status
+
+
 @app.route("/config")
 def get_config():
     return jsonify({
@@ -212,6 +263,18 @@ def get_config():
         "SUPABASE_ANON_KEY": os.getenv("SUPABASE_ANON_KEY")
     })
 
+@app.route("/user/<user_id>/liked", methods=["GET"])
+def get_liked_recipes(user_id):
+    svc = RecipeService(supabase)
+    data, status = svc.get_liked_recipes(user_id)
+    return jsonify(data), status
+
+
+@app.route("/recipe/<int:recipe_id>", methods=["GET"])
+def get_recipe(recipe_id):
+    svc = RecipeService(supabase)
+    data, status = svc.get_recipe_by_id(recipe_id)
+    return jsonify(data), status
 
 
 if __name__ == '__main__':
