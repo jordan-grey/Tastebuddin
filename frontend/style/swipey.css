@@ -70,8 +70,6 @@ body {
     font-size: 26px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.2);
     transition: transform 0.15s ease;
-    bottom: 0;
-    position: fixed;
 }
 
 .btn:hover {
@@ -81,13 +79,22 @@ body {
 #like-button {
     background: #ff3b6b;
     color: white;
-    right: 0;
+    float: right;
 }
 
 #reject-button {
     background: #333;
     color: white;
-    left: 0;
+    float: left;
+}
+
+#swipey-buttons {
+    position: fixed;
+    bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
 }
 
 
