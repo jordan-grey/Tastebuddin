@@ -15,7 +15,8 @@ app = Flask(__name__)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-CORS(app)
+CORS(app, supports_credentials=True, origins="*")
+
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -265,16 +266,9 @@ def get_config():
 
 @app.route("/user/<user_id>/liked", methods=["GET"])
 def get_liked_recipes(user_id):
-    svc = RecipeService(supabase)
-    data, status = svc.get_liked_recipes(user_id)
+    data, status = user_service.get_liked_recipes(user_id)
     return jsonify(data), status
 
-
-@app.route("/recipe/<int:recipe_id>", methods=["GET"])
-def get_recipe(recipe_id):
-    svc = RecipeService(supabase)
-    data, status = svc.get_recipe_by_id(recipe_id)
-    return jsonify(data), status
 
 
 if __name__ == '__main__':
