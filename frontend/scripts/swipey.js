@@ -6,7 +6,7 @@ if (!userID) {
 }
 
 // new fetch functionality
-fetch(`http://localhost:5001/feed/${userID}`)
+fetch(`${API_BASE}/feed/${userID}`)
     .then(res => res.json())
     .then(data => {
         console.log("User feed: ", data);
@@ -101,11 +101,45 @@ function nextRecipe() {
     }, 300);
 }
 
-function like() {
+async function like() {
+    // current recipe
+    const curr_idx = idx;
+    const r = recipes[curr_idx];
+    const route = `${API_BASE}/user/like`;
+
+    // connect to backend, deliver recipe to be liked
+    fetch(route, {
+        method: "POST",
+        headers: { "Content-Type": "recipe/json" },
+        body: JSON.stringify({
+            user_id: userID,
+            recipe_id: r.recipe_id,
+            author_id: r.author_id
+        })
+    });
+
+    // move on to next recipe in the frontend
     nextRecipe();
 }
 
 function dislike() {
+
+    // current recipe
+    const curr_idx = idx;
+    const r = recipes[curr_idx];
+    const route = `${API_BASE}/user/dislike`;
+
+    // connect to backend, deliver recipe to be liked
+    fetch(route, {
+        method: "POST",
+        headers: { "Content-Type": "recipe/json" },
+        body: JSON.stringify({
+            user_id: userID,
+            recipe_id: r.recipe_id,
+        })
+    });
+
+    // move on to next recipe in the frontend
     nextRecipe();
 }
 
