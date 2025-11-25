@@ -13,13 +13,14 @@ class UserService:
     # -------------------------------------------------
     # CREATE USER
     # -------------------------------------------------
-    def create_user(self, user_id: str, username: str):
+    def create_user(self, user_id: str, username: str, aller, unseen):
+
         profile_data = {
             "id": user_id,
             "username": username,
-            "allergens": [],
+            "allergens": aller,
             "liked_recipes": [],
-            "unseen_recipes": [],
+            "unseen_recipes": unseen,
             "disliked_recipes": [],
             "total_likes": 0,
             "created_at": datetime.now(timezone.utc).isoformat()
@@ -65,7 +66,7 @@ class UserService:
             return {"error": str(e)}, 500
 
     # -------------------------------------------------
-    # LIKE RECIPE
+    # LIKE/DISLIKE RECIPE
     # -------------------------------------------------
     def like_recipe(self, user_id: str, recipe_id: int, author_id: str):
         try:
@@ -76,8 +77,15 @@ class UserService:
             if recipe_id not in likes:
                 likes.append(recipe_id)
 
+            unseen = profile.get("unseen_recipes", [])
+            if recipe_id in unseen:
+                unseen.remove(recipe_id)
+
             self.supabase.table(self.table).update(
-                {"liked_recipes": likes}
+                {
+                    "liked_recipes": likes,
+                    "unseen_recipes": unseen
+                }
             ).eq("id", user_id).execute()
 
             author, _ = self.get_user(author_id)
@@ -91,6 +99,37 @@ class UserService:
 
         except Exception as e:
             return {"error": str(e)}, 500
+        
+    def dislike_recipe(self, user_id: str, recipe_id: int):
+        try:
+            user, _ = self.get_user(user_id)
+            profile = user["data"][0]
+
+            disliked = profile.get("disliked_recipes", [])
+            if recipe_id not in disliked:
+                disliked.append(recipe_id)
+
+            # Remove from unseen_recipes
+            unseen = profile.get("unseen_recipes", [])
+            if recipe_id in unseen:
+                unseen.remove(recipe_id)
+
+            # Update user record
+            res = (
+                self.supabase.table(self.table)
+                .update({
+                    "disliked_recipes": disliked,
+                    "unseen_recipes": unseen
+                })
+                .eq("id", user_id)
+                .execute()
+            )
+
+            return {"data": res.data}, 200
+
+        except Exception as e:
+            return {"error": str(e)}, 500
+
 
     # -------------------------------------------------
     def unlike_recipe(self, user_id: str, recipe_id: int, author_id: str):

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tastebuddin Leaderboard</title>
+
+    <!-- You can reuse your existing CSS! -->
+    <link rel="stylesheet" href="../style/leaderboard.css">
+
+    <style>
+        /* TAB STYLING (keeps your existing UI) */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 12px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            background: #ddd;
+        }
+
+        .tab.active {
+            background: #9ee493;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="tabs">
+        <div class="tab" data-tab="daily">Daily</div>
+        <div class="tab active" data-tab="weekly">Weekly</div>
+        <div class="tab" data-tab="authors">Authors</div>
+    </div>
+
+        <!-- DAILY Recipes Leaderboard -->
+        <!-- DAILY -->
+    <div id="daily" class="tab-content">
+        <div class="leaderboard">
+            <h2>Daily Leaderboard</h2>
+            <ul id="daily-list"></ul>
+        </div>
+    </div>
+
+    <!-- WEEKLY -->
+    <div id="weekly" class="tab-content active">
+        <div class="leaderboard">
+            <h2>Weekly Leaderboard</h2>
+            <ul id="weekly-list"></ul>
+        </div>
+    </div>
+
+    <!-- AUTHORS -->
+    <div id="authors" class="tab-content">
+        <div class="leaderboard">
+            <h2>Top Authors</h2>
+            <ul id="authors-list"></ul>
+        </div>
+    </div>
+
+</div>
+
+<script src="../scripts/leaderboard.js"></script>
+
+</body>
+</html>

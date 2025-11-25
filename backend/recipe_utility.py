@@ -113,6 +113,30 @@ class RecipeUtility:
             filtered.append(r)
 
         return filtered
+    
+    def filter_unseen_by_allergens(self, recipes, user_allergens):
+        """
+        recipes = [
+        {"recipeid": 1, "dietaryrestrictions": ["gluten", "dairy"]},
+        {"recipeid": 2, "dietaryrestrictions": []},
+        {"recipeid": 3, "dietaryrestrictions": ["peanut"]},
+        ]
+        user_allergens = ["gluten", "shellfish"]
+        """
+
+        # If user has zero allergies, ALL recipes are unseen
+        if not user_allergens:
+            return [r["recipeid"] for r in recipes]
+
+        allowed = []
+        for recipe in recipes:
+            restrictions = recipe.get("dietaryrestrictions", [])
+
+            # If none of the user's allergens appear in this recipe's restrictions → allow
+            if not any(a in restrictions for a in user_allergens):
+                allowed.append(recipe["recipeid"])
+
+        return allowed
 
     def filter_unseen_recipes(
         self,
