@@ -130,32 +130,47 @@ class UserService:
             return {"error": str(e)}, 500
 
 
-    def get_liked_recipes(self, user_id: str):
-            """
-            Returns all recipe rows whose IDs appear in user's liked_recipes list.
-            """
-
-            # 1) Fetch the user profile
-            user_res = self.supabase.table(self.user_table).select("*").eq("id", user_id).execute()
-
-            if not user_res.data:
-                return {"error": "User not found"}, 404
-
-            liked_ids = user_res.data[0].get("liked_recipes", [])
-
-            # If empty, return empty list
-            if not liked_ids:
-                return {"data": []}, 200
-
-            # 2) Fetch recipes matching these IDs
-            recipes_res = (
-                self.supabase.table(self.recipe_table)
-                .select("*")
-                .in_("id", liked_ids)
+    def get_liked_recipes(self, user_id):
+        try:
+            # 1) Load profile
+            prof = (
+                self.supabase.table("users_public")
+                .select("liked_recipes")
+                .eq("id", user_id)
                 .execute()
             )
 
-            return {"data": recipes_res.data}, 200
+            if not prof.data:
+                return {"error": "User not found"}, 404
+
+            liked = prof.data[0].get("liked_recipes", [])
+
+            # Convert strings → integers (CRITICAL FIX)
+            liked_int = []
+            for x in liked:
+                try:
+                    liked_int.append(int(x))
+                except:
+                    continue
+
+            if not liked_int:
+                return {"data": []}, 200
+
+            # 2) Fetch recipes using proper integer list
+            recipes = (
+                self.supabase.table("recipes_public")
+                .select("*")
+                .in_("recipeid", liked_int)
+                .execute()
+            )
+
+            return {"data": recipes.data}, 200
+
+        except Exception as e:
+            print("🔥 ERROR in get_liked_recipes:", e)
+            return {"error": str(e)}, 500
+
+
 
     # -------------------------------------------------
     def unlike_recipe(self, user_id: str, recipe_id: int, author_id: str):
