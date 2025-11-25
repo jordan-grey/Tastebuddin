@@ -38,7 +38,7 @@ h2 { /* TASTEBUDDIN */
 
 .inline-block-item {
   display: inline-block;
-  width: 45%; /* Adjust width to leave space for margins/padding */
+  width: 25%; /* Adjust width to leave space for margins/padding */
   padding: 10px;
   margin: 5px;
   text-align: right;
@@ -68,6 +68,48 @@ h2 { /* TASTEBUDDIN */
     font-weight: bold;
     color: #007BFF;
 }
+/* --- TAB AREA ---------------------------------------------------- */
 
+.tabs {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+    gap: 16px;
+}
 
+.tab {
+    padding: 10px 26px;
+    border-radius: 20px;
+    cursor: pointer;
+    background: #ddd;
+    font-weight: 600;
+    color: #02111b;
+    transition: 
+        background-color 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
 
+/* Hover */
+.tab:hover {
+    background: #c5f5ba;
+    transform: translateY(-3px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+/* Active tab */
+.tab.active {
+    background: #9ee493;
+    transform: translateY(-3px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.20);
+}
+
+/* Hide / show tab panels */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}

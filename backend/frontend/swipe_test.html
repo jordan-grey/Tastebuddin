@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Swipe Recipes</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #efefef;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    #card-container {
+        position: relative;
+        width: 450px;
+        height: 650px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .card {
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        border-radius: 22px;
+        padding: 22px;
+        box-shadow: 0 10px 28px rgba(0,0,0,0.2);
+        position: absolute;
+        top: 0;
+        left: 0;
+        text-align: center;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .card img {
+        width: 100%;
+        height: 320px;
+        object-fit: cover;
+        border-radius: 16px;
+        margin-bottom: 18px;
+    }
+
+    .card h2 {
+        margin-top: 10px;
+        font-size: 26px;
+        font-weight: bold;
+    }
+
+    .card p {
+        margin-top: 8px;
+        font-size: 17px;
+        color: #444;
+    }
+
+    #controls {
+        margin-top: 20px;
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 18px 25px;
+        border-radius: 50px;
+        border: none;
+        cursor: pointer;
+        font-size: 26px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        transition: transform 0.15s ease;
+    }
+
+    .btn:hover {
+        transform: scale(1.1);
+    }
+
+    #likeBtn {
+        background: #ff3b6b;
+        color: #fff;
+    }
+
+    #dislikeBtn {
+        background: #333;
+        color: #fff;
+    }
+</style>
+
+</head>
+
+<body>
+
+    <div id="card-container">
+        <div id="card" class="card">
+            <img id="photo">
+            <h2 id="title"></h2>
+            <p id="desc"></p>
+            <small id="ingredients"></small>
+        </div>
+    </div>
+    
+    <div id="controls">
+        <button id="dislikeBtn" class="btn">❌</button>
+        <button id="likeBtn" class="btn">❤️</button>
+    </div>
+    
+<script>
+const API_BASE = "http://localhost:5001";
+const FEED_ENDPOINT = "/feed/sarah_test";
+
+let recipes = [];
+let index = 0;
+
+let card = document.getElementById("card");
+let startX, currentX;
+let dragging = false;
+
+async function loadRecipes() {
+    const res = await fetch(API_BASE + FEED_ENDPOINT);
+    const json = await res.json();
+    recipes = json.data || [];
+    showRecipe();
+}
+
+function showRecipe() {
+    if (recipes.length === 0) {
+        card.innerHTML = "<h2>No Recipes Available</h2>";
+        return;
+    }
+
+    let r = recipes[index];
+    card.querySelector("#title").innerText = r.title;
+    card.querySelector("#desc").innerText = r.description || "";
+    card.querySelector("#ingredients").innerText =
+        "Ingredients: " + (r.ingredients?.join(", ") || "");
+
+    card.querySelector("#photo").src =
+        (r.photopath && !r.photopath.includes("null"))
+            ? r.photopath
+            : "";
+}
+
+function nextRecipe() {
+    card.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+    card.style.transform = "translateX(-400px) rotate(-25deg)";
+    card.style.opacity = "0";
+
+    setTimeout(() => {
+        index = (index + 1) % recipes.length;
+        card.style.transition = "none";
+        card.style.transform = "translateX(0) rotate(0)";
+        card.style.opacity = "1";
+        showRecipe();
+    }, 300);
+}
+
+function like() {
+    nextRecipe();
+}
+
+function dislike() {
+    nextRecipe();
+}
+
+// -------- SWIPE GESTURES ---------
+card.addEventListener("mousedown", e => {
+    startX = e.clientX;
+    dragging = true;
+});
+
+card.addEventListener("mousemove", e => {
+    if (!dragging) return;
+    currentX = e.clientX - startX;
+    card.style.transform = `translateX(${currentX}px) rotate(${currentX/20}deg)`;
+});
+
+card.addEventListener("mouseup", e => {
+    dragging = false;
+
+    if (currentX > 120) { like(); return; }
+    if (currentX < -120) { dislike(); return; }
+
+    // Snap back
+    card.style.transition = "0.2s ease";
+    card.style.transform = "translateX(0) rotate(0)";
+});
+
+// Mobile compatibility
+card.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+    dragging = true;
+});
+
+card.addEventListener("touchmove", e => {
+    if (!dragging) return;
+    currentX = e.touches[0].clientX - startX;
+    card.style.transform = `translateX(${currentX}px) rotate(${currentX/20}deg)`;
+});
+
+card.addEventListener("touchend", e => {
+    dragging = false;
+    if (currentX > 120) { like(); return; }
+    if (currentX < -120) { dislike(); return; }
+
+    card.style.transition = "0.2s";
+    card.style.transform = "translateX(0) rotate(0)";
+});
+
+document.getElementById("likeBtn").onclick = like;
+document.getElementById("dislikeBtn").onclick = dislike;
+
+loadRecipes();
+</script>
+
+</body>
+</html>
