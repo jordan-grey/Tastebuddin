@@ -1,11 +1,194 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Tastebuddin Login</title>
-</head>
+  <meta charset="UTF-8">
+  <title>Saved recipes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fafafa;
+      padding: 20px;
+    }
 
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    #recipe-container {
+      display: grid;
+      gap: 25px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    .recipe-card {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      transition: transform .2s;
+    }
+
+    .recipe-card:hover {
+      transform: scale(1.02);
+    }
+
+    .recipe-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .author {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .category-tag {
+      display: inline-block;
+      background: transparent;
+      color: #333;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    .category-breakfast { background-color: #FFEE8C; } /* pastel yellow */
+    .category-lunch { background-color: #ffc067; }     /* pastel orange */
+    .category-dinner { background-color: #ff746c; }    /* pastel red */
+    .category-dessert { background-color: #c9a0dc; }   /* purple wisteria*/
+    .category-vegan { background-color: #80ef80; }     /* pastel green */
+    .category-snack { background-color: #836953; }     /* brown */
+    .category-drink { background-color: #9dd9f3; }     /* light blue */
+
+    .description {
+      margin-bottom: 10px;
+    }
+
+    .ingredients-list {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
 <body>
 
-</body>
+  <h1>Saved Recipes</h1>
+  <div style="text-align:center; margin-bottom:20px;">
+  <label for="categoryFilter">Filter by category:</label>
+  <select id="categoryFilter">
+    <option value="all">All</option>
+    <option value="breakfast">Breakfast</option>
+    <option value="lunch">Lunch</option>
+    <option value="dinner">Dinner</option>
+    <option value="dessert">Dessert</option>
+    <option value="vegan">Vegan</option>
+    <option value="snack">Snack</option>
+    <option value="drink">Drink</option>
+        </select>
+   </div>
 
+  <div id="recipe-container">Loading recipes...</div>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:5000"; // 🔥 UPDATE IF NEEDED
+    let allRecipes = [] // use to store recipes so i can access for filtering
+    async function loadRecipes() {
+        try {
+            const res = await fetch(`${API_BASE}/recipes`);
+            const json = await res.json();
+
+            allRecipes = json.data; // allRecipes = the recipes
+            const container = document.getElementById("recipe-container");
+            container.innerHTML = ""; // clear loading text
+
+            json.data.forEach(recipe => {
+                const card = document.createElement("div");
+                card.className = "recipe-card";
+
+                const image = recipe.photopath 
+                ? `<img src="${recipe.photopath}" class="recipe-image" />`
+                : `<div class="recipe-image" style="background:#ddd;display:flex;align-items:center;justify-content:center;">No Image</div>`;
+
+                const ingredients = recipe.ingredients && recipe.ingredients.length
+                    ? recipe.ingredients.join(", ")
+                    : "—";
+
+                // Determine category class
+                const categoryClass = recipe.category 
+                    ? `category-${recipe.category.toLowerCase()}` 
+                    : "category-uncategorized";
+
+                card.innerHTML = `
+                    ${image}
+                    <div class="title">${recipe.title}</div>
+                    <div class="author">By: ${recipe.authorname ?? "Unknown"}</div>
+                    <div class="category-tag ${categoryClass}">${recipe.category ?? "Uncategorized"}</div>
+                    <div class="description">${recipe.description || "No description."}</div>
+                    <div class="ingredients-list"><strong>Ingredients:</strong> ${ingredients}</div>
+                    `;
+
+                container.appendChild(card);
+            });
+
+        } 
+        
+        catch (error) {
+            console.error("Failed to load recipes:", error);
+        }
+        // Filter listener (inline)
+        document.getElementById("categoryFilter").addEventListener("change", (e) => {
+            const selected = e.target.value;
+            const container = document.getElementById("recipe-container");
+            container.innerHTML = ""; // clear previous cards
+
+            const filtered = selected === "all"      // filtered == the selected category
+            ? allRecipes
+            : allRecipes.filter(r => r.category.toLowerCase() === selected);
+
+            filtered.forEach(recipe => { // loop through the recieps and rerender the recipes because we're filtering out the ones we dont want
+                // for now this is repeated code which i guess is a bad look
+                const card = document.createElement("div");
+                card.className = "recipe-card";
+
+                const image = recipe.photopath 
+                    ? `<img src="${recipe.photopath}" class="recipe-image" />`
+                    : `<div class="recipe-image" style="background:#ddd;display:flex;align-items:center;justify-content:center;">No Image</div>`;
+
+                const ingredients = recipe.ingredients && recipe.ingredients.length
+                    ? recipe.ingredients.join(", ")
+                    : "—";
+
+                const categoryClass = recipe.category 
+                    ? `category-${recipe.category.toLowerCase()}` 
+                    : "category-uncategorized";
+
+                card.innerHTML = `
+                    ${image}
+                    <div class="title">${recipe.title}</div>
+                    <div class="author">By: ${recipe.authorname ?? "Unknown"}</div>
+                    <div class="category-tag ${categoryClass}">${recipe.category ?? "Uncategorized"}</div>
+                    <div class="description">${recipe.description || "No description."}</div>
+                    <div class="ingredients-list"><strong>Ingredients:</strong> ${ingredients}</div>
+                    `;
+
+                container.appendChild(card);
+                });
+        });
+    }
+
+
+    loadRecipes();
+  </script>
+
+</body>
 </html>
