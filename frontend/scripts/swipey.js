@@ -1,13 +1,11 @@
 const API_BASE = "http://localhost:5001";
-
-
 const userID = localStorage.getItem("tastebuddin_user_id");
 
 if (!userID) {
     window.location.href = "sign-in.html"; // changed
 }
 
-// // new fetch functionality
+// new fetch functionality
 fetch(`http://localhost:5001/feed/${userID}`)
     .then(res => res.json())
     .then(data => {
@@ -15,42 +13,14 @@ fetch(`http://localhost:5001/feed/${userID}`)
         renderFeed(data.data);
     })
 
-// let recipes = [
-//         {
-//             "title": "UnitTest Brownie",
-//             "description": "A chocolate brownie created by tests.",
-//             "ingredients": ["flour", "sugar", "cocoa"],
-//             "directions": ["mix", "bake"],
-//             "category": "dessert",
-//             "dietaryrestrictions": ["vegetarian"],
-//             "minutestocomplete": 30,
-//             "authorid": "fce74316-e465-412b-8e57-8ff7cbd72d3d",
-//             "authorname": "test_kadee",
-//             "photopath": "https://upload.wikimedia.org/wikipedia/commons/6/68/Chocolatebrownie.JPG"
 
-//         },
-//         {
-//         "title": "Fluffy Buttermilk Pancakes",
-//             "description": "Classic fluffy pancakes perfect for a weekend breakfast.",
-//             "ingredients": ["flour","buttermilk","eggs","baking powder","butter"],
-//             "directions": ["In a large mixing bowl, whisk together the flour, sugar, baking powder, baking soda, and salt.","In a separate bowl, whisk the buttermilk, eggs, and melted butter until smooth.","Pour the wet ingredients into the dry mixture and gently fold until just combined. Do not overmix; some lumps are fine.","Heat a lightly buttered or oiled skillet over medium heat.","Scoop 1/4 cup of batter onto the skillet for each pancake.","Cook until bubbles form on the surface and the edges look set, about 2-3 minutes","Flip and cook the other side until golden brown, 1-2 minutes more.","Serve warm with maple syrup, fruit, or powdered sugar."],
-//             "category": "breakfast",
-//             "dietaryrestrictions": ["dairy", "gluten"],
-//             "minutestocomplete": 25,
-//             "authorid": "fce74316-e465-412b-8e57-8ff7cbd72d3d",
-//             "authorname": "test_kadee",
-//             "photopath": "https://www.inspiredtaste.net/wp-content/uploads/2025/07/Pancake-Recipe-1.jpg"
-//     }
-// ];
+// variables for the animation
 let recipes = [];
 let idx = 0;
-
-// rewrite this to be different
-let card = document.querySelector("#recipe-info");
 let startX, currX;
 let dragging = false;
 
-// more references
+// references to doc elements
 let titleRef = document.querySelector("#recipe-title");
 let imgEl = document.querySelector("#recipe-image");
 let descEl = document.querySelector("#recipe-overview");
@@ -59,6 +29,7 @@ let dirEl = document.querySelector("#recipe-steps-list");
 let timeEl = document.querySelector("#recipe-est-time");
 
 
+// render the feed
 function renderFeed(feedData) {
     console.log("Rendering feed:", feedData);
 
@@ -75,32 +46,6 @@ function renderFeed(feedData) {
 
     // show first recipe
     showRecipe();
-}
-
-async function loadRecipes() {
-    // const res = await fetch(API_BASE + FEED_ENDPOINT);
-    // const json = await res.json();
-    // recipes = json.data || [];
-    // showRecipe();
-    try {
-        const res = await fetch(`${API_BASE}/feed/${userID}`);
-        const json = await res.json();
-
-        recipes = json.data.recipes || json.data || [];
-        console.log("Recipes: ", recipes);
-
-        if (recipes.length === 0) {
-            // showEmpty();
-            console.log("Recipes is of length 0.");
-            return;
-        }
-        
-        showRecipe();
-
-    } catch (err) {
-        console.error("Feed error:", err);
-        // showEmpty();
-    }
 }
 
 function showDefault() {
@@ -129,12 +74,12 @@ function showRecipe() {
 
     // ingredients: array → HTML list
     ingEl.innerHTML = (r.ingredients || [])
-        .map(i => `<li>${i}</li>`)
+        .map(i => `<p>${i}</p>`)
         .join("");
 
     // directions: array → HTML list
     dirEl.innerHTML = (r.directions || [])
-        .map(step => `<li>${step}</li>`)
+        .map(step => `<p>${step}</p>`)
         .join("");
 
     // estimated time
@@ -164,8 +109,8 @@ function dislike() {
     nextRecipe();
 }
 
+
+// set what functions run for each button
 document.getElementById("like-button").onclick = like;
 document.getElementById("reject-button").onclick = dislike;
-
-loadRecipes();
 
