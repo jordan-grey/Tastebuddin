@@ -270,6 +270,12 @@ def get_liked_recipes(user_id):
     return jsonify(data), status
 
 
+# @app.route("/recipe/<int:recipe_id>", methods=["GET"])
+# def get_recipe(recipe_id):
+#     svc = RecipeService(supabase)
+#     data, status = svc.get_recipe_by_id(recipe_id)
+#     return jsonify(data), status
+
 
 if __name__ == '__main__':
     app.run(debug=True)

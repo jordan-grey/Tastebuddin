@@ -6,12 +6,12 @@ if (!userID) {
 }
 
 // new fetch functionality
-fetch(`http://localhost:5001/feed/${userID}`)
+fetch(`${API_BASE}/feed/${userID}`)
     .then(res => res.json())
     .then(data => {
         console.log("User feed: ", data);
         renderFeed(data.data);
-    })
+    });
 
 
 // variables for the animation
@@ -95,17 +95,60 @@ function nextRecipe() {
     // whole bunch of animation stuff
 
     setTimeout(() => {
-        idx = (idx + 1) % recipes.length;
+        idx = idx + 1;
         // more animation stuff
         showRecipe();
     }, 300);
 }
 
-function like() {
+async function like() {
+    // current recipe
+    const curr_idx = idx;
+    const r = recipes[curr_idx];
+    const route = `${API_BASE}/user/like`;
+    const delivery = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            user_id: userID,
+            recipeid: r.recipeid,
+            author_id: r.authorid
+        }),
+    };
+    // console.log("Current recipe: ", r);
+    // console.log("Attempting to POST: ", delivery);
+    // console.log("Attempted POST body: ", delivery.body);
+
+    // connect to backend, deliver recipe to be liked
+    await fetch(route, delivery);
+
+    // move on to next recipe in the frontend
     nextRecipe();
 }
 
-function dislike() {
+async function dislike() {
+
+    // current recipe
+    const curr_idx = idx;
+    const r = recipes[curr_idx];
+    const route = `${API_BASE}/user/dislike`;
+    const delivery = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            user_id: userID,
+            recipe_id: r.recipeid,
+        })
+    };
+
+    // console.log("Current recipe: ", r);
+    // console.log("Attempting to POST: ", delivery);
+    // console.log("Attempted POST body: ", delivery.body);
+
+    // connect to backend, deliver recipe to be liked
+    await fetch(route, delivery);
+
+    // move on to next recipe in the frontend
     nextRecipe();
 }
 
