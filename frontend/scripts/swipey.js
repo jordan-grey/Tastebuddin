@@ -11,7 +11,7 @@ fetch(`${API_BASE}/feed/${userID}`)
     .then(data => {
         console.log("User feed: ", data);
         renderFeed(data.data);
-    })
+    });
 
 
 // variables for the animation
@@ -95,7 +95,7 @@ function nextRecipe() {
     // whole bunch of animation stuff
 
     setTimeout(() => {
-        idx = (idx + 1) % recipes.length;
+        idx = idx + 1;
         // more animation stuff
         showRecipe();
     }, 300);
@@ -106,38 +106,47 @@ async function like() {
     const curr_idx = idx;
     const r = recipes[curr_idx];
     const route = `${API_BASE}/user/like`;
-
-    // connect to backend, deliver recipe to be liked
-    fetch(route, {
+    const delivery = {
         method: "POST",
-        headers: { "Content-Type": "recipe/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             user_id: userID,
-            recipe_id: r.recipe_id,
-            author_id: r.author_id
-        })
-    });
+            recipeid: r.recipeid,
+            author_id: r.authorid
+        }),
+    };
+    // console.log("Current recipe: ", r);
+    // console.log("Attempting to POST: ", delivery);
+    // console.log("Attempted POST body: ", delivery.body);
+
+    // connect to backend, deliver recipe to be liked
+    await fetch(route, delivery);
 
     // move on to next recipe in the frontend
     nextRecipe();
 }
 
-function dislike() {
+async function dislike() {
 
     // current recipe
     const curr_idx = idx;
     const r = recipes[curr_idx];
     const route = `${API_BASE}/user/dislike`;
-
-    // connect to backend, deliver recipe to be liked
-    fetch(route, {
+    const delivery = {
         method: "POST",
-        headers: { "Content-Type": "recipe/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             user_id: userID,
-            recipe_id: r.recipe_id,
+            recipe_id: r.recipeid,
         })
-    });
+    };
+
+    // console.log("Current recipe: ", r);
+    // console.log("Attempting to POST: ", delivery);
+    // console.log("Attempted POST body: ", delivery.body);
+
+    // connect to backend, deliver recipe to be liked
+    await fetch(route, delivery);
 
     // move on to next recipe in the frontend
     nextRecipe();
