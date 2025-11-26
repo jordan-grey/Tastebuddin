@@ -2,12 +2,19 @@ version: "3.9"
 
 services:
   backend:
-    build: ./backend                # path to backend Dockerfile
+    build: ./backend
     container_name: tastebuddin-backend
     ports:
-      - "5001:5000"                 # host:container
+      - "5001:5000"
     env_file:
-      - ./backend/.env              # Supabase keys, etc.
+      - ./backend/.env
     volumes:
-      - ./backend:/app              # live-reload during dev
+      - ./backend:/app
+    restart: always
+
+  frontend:
+    build: ./frontend
+    container_name: tastebuddin-frontend
+    ports:
+      - "3000:80"        # host:container
     restart: always
