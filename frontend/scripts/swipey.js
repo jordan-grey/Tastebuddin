@@ -51,11 +51,28 @@ function renderFeed(feedData) {
 function showDefault() {
     // TODO: write something to show default and be like
     // no recipes :(
+    console.log("No recipes left!");
+
+    // Hide recipe card
+    document.getElementById("recipe-card").style.display = "none";
+
+    // Show "no more recipes"
+    document.getElementById("no-recipes").style.display = "block";
+
+    document.getElementById("like-button").disabled = true;
+    document.getElementById("reject-button").disabled = true;
     return;
 }
 
+
+document.body.innerHTML.includes("no-recipes")
+
+
+
 function showRecipe() {
-    if (recipes.length === 0) return showDefault();
+    if (recipes.length === 0 || idx >= recipes.length || !recipes[idx]) {
+        return showDefault();
+    }
 
     const r = recipes[idx];
 
@@ -95,16 +112,25 @@ function nextRecipe() {
     // whole bunch of animation stuff
 
     setTimeout(() => {
-        idx = idx + 1;
-        // more animation stuff
+        idx += 1;
+
+        if (idx >= recipes.length) {
+            recipes = [];
+            return showDefault();
+        }
+    
         showRecipe();
     }, 300);
 }
 
 async function like() {
     // current recipe
+    if (recipes.length === 0 || !recipes[idx]) {
+        return showDefault();
+    }
     const curr_idx = idx;
     const r = recipes[curr_idx];
+    if (!r) return showDefault();
     const route = `${API_BASE}/user/like`;
     const delivery = {
         method: "POST",
@@ -127,10 +153,14 @@ async function like() {
 }
 
 async function dislike() {
+    if (recipes.length === 0 || !recipes[idx]) {
+        return showDefault();
+    }
 
     // current recipe
     const curr_idx = idx;
     const r = recipes[curr_idx];
+    if (!r) return showDefault();
     const route = `${API_BASE}/user/dislike`;
     const delivery = {
         method: "POST",
