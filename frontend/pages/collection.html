@@ -100,12 +100,22 @@
   <div id="recipe-container">Loading recipes...</div>
 
   <script>
-    const API_BASE = "http://127.0.0.1:5000"; // 🔥 UPDATE IF NEEDED
+    const API_BASE = "http://127.0.0.1:5001"; // 🔥 UPDATE IF NEEDED
+    const user_id = localStorage.getItem("tastebuddin_user_id");
+    if (!user_id) {
+        alert("No user logged in — redirecting...");
+        window.location.href = "sign-in.html";
+    }
     let allRecipes = [] // use to store recipes so i can access for filtering
     async function loadRecipes() {
         try {
-            const res = await fetch(`${API_BASE}/recipes`);
+            const res = await fetch(`${API_BASE}/user/${user_id}/liked`);
             const json = await res.json();
+
+            if (!json.data || !Array.isArray(json.data)) {
+                console.error("Backend returned an error or invalid data:", json);
+                return;  // stop running the recipe rendering so the page doesn’t crash
+            }
 
             allRecipes = json.data; // allRecipes = the recipes
             const container = document.getElementById("recipe-container");
