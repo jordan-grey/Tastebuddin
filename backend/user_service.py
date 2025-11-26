@@ -167,7 +167,7 @@ class UserService:
             return {"data": recipes.data}, 200
 
         except Exception as e:
-            print("🔥 ERROR in get_liked_recipes:", e)
+            print("ERROR in get_liked_recipes:", e)
             return {"error": str(e)}, 500
 
 
