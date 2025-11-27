@@ -3,6 +3,7 @@ import uuid
 import os
 from supabase import create_client
 from user_service import UserService
+from recipe_service import RecipeService
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,6 +18,7 @@ class UserServiceDatabaseTest(unittest.TestCase):
         cls.supabase = create_client(url, key)
 
         cls.service = UserService(cls.supabase)
+        cls.recipeHelp = RecipeService(cls.supabase)
 
         cls.test_password = "Password123!"
 
@@ -79,13 +81,32 @@ class UserServiceDatabaseTest(unittest.TestCase):
 
     # ---------------------------------------------------------
     def test_4_like_recipe(self):
-        recipe_id = 1001
+        # --- Create a real recipe first ---
+        recipe_data = {
+            "title": "Like Test Recipe",
+            "description": "Used for like testing",
+            "ingredients": ["salt"],
+            "directions": ["mix"],
+            "category": "dessert",
+            "dietaryrestrictions": [],
+            "minutestocomplete": 5,
+            "authorid": self.author_id,
+            "authorname": "author_test"
+        }
 
+        created = self.recipeHelp.create_recipe(recipe_data)
+        self.assertIn("data", created)
+
+        recipe_id = created["data"][0]["recipeid"]
+
+        # --- Now perform the actual like ---
         result, status = self.service.like_recipe(self.user_id, recipe_id, self.author_id)
         self.assertEqual(status, 200)
 
+        # --- Verify user now likes it ---
         user, _ = self.service.get_user(self.user_id)
         self.assertIn(recipe_id, user["data"][0]["liked_recipes"])
+
 
     # ---------------------------------------------------------
     def test_5_unlike_recipe(self):
