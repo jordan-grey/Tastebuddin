@@ -169,24 +169,42 @@ class RecipeUtility:
         )
         return resp.data or []
 
-    def generate_user_feed(
-        self,
-        recipes_or_none: Optional[List[Dict[str, Any]]],
-        user_data: Dict[str, Any],
-    ) -> List[Dict[str, Any]]:
-        """
-        If recipes_or_none is provided (tests), use it.
-        If it’s None and supabase is set (runtime), we fetch from DB.
-        """
-        # 1) Gather recipes
+    def generate_user_feed(self, recipes_or_none, user_data):
+        # Load recipes
         recipes = recipes_or_none if recipes_or_none is not None else self._fetch_all_recipes()
 
-        # 2) Pull user fields flexibly
         allergens = self._as_list(user_data.get("allergens"))
         unseen = self._as_list(user_data.get("unseen_recipes"))
 
-        # 3) Apply filters
-        safe = self.filter_recipes_by_allergens(recipes, allergens)
-        feed = self.filter_unseen_recipes(safe, unseen)
+        # 1) If user still has unseen → ONLY show unseen
+        if unseen:
+            unseen_set = set(unseen)
+            unseen_recipes = [r for r in recipes if r.get("recipeid") in unseen_set]
 
-        return feed
+            # Apply allergen filter to unseen
+            safe_unseen = self.filter_recipes_by_allergens(unseen_recipes, allergens)
+
+            return safe_unseen
+
+        # 2) If no unseen remain → return empty feed
+        return []
+    
+    def get_recipe_by_id(self, recipe_id: int):
+        """Return a single recipe row by its ID."""
+        try:
+            res = (
+                self.supabase
+                .table(self.recipe_table)
+                .select("*")
+                .eq("id", recipe_id)
+                .limit(1)
+                .execute()
+            )
+
+            if not res.data:
+                return {"error": "Recipe not found"}, 404
+
+            return {"data": res.data[0]}, 200
+
+        except Exception as e:
+            return {"error": str(e)}, 500

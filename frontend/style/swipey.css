@@ -8,6 +8,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh; /* vh short for ??*/
+    background-color: #88b6e7;
 }
 
 #container {
@@ -78,11 +79,22 @@ body {
 #like-button {
     background: #ff3b6b;
     color: white;
+    float: right;
 }
 
 #reject-button {
     background: #333;
     color: white;
+    float: left;
+}
+
+#swipey-buttons {
+    position: fixed;
+    bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
 }
 
 

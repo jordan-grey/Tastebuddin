@@ -4,11 +4,14 @@ from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
 import uuid
+import json 
+
 
 load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
 
 
 class RecipeService:
@@ -101,6 +104,20 @@ class RecipeService:
             for field in required:
                 if field not in data:
                     return {"error": f"Missing required field: {field}"}, 400
+                
+
+            def parse_list(field):
+                        raw = data.get(field, "[]")
+                        if isinstance(raw, list):
+                            return raw
+                        try:
+                            return json.loads(raw)
+                        except:
+                            return []
+
+            data["ingredients"] = parse_list("ingredients")
+            data["directions"] = parse_list("directions")
+            data["dietaryrestrictions"] = parse_list("dietaryrestrictions")
 
             # First create recipe WITHOUT image
             response = self.supabase.table(self.table_name).insert(data).execute()

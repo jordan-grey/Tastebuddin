@@ -70,6 +70,8 @@ class UserService:
     # -------------------------------------------------
     def like_recipe(self, user_id: str, recipe_id: int, author_id: str):
         try:
+
+            #update user likes and unseen
             user, _ = self.get_user(user_id)
             profile = user["data"][0]
 
@@ -88,12 +90,28 @@ class UserService:
                 }
             ).eq("id", user_id).execute()
 
+            #update authors likes 
             author, _ = self.get_user(author_id)
             total = author["data"][0].get("total_likes", 0) + 1
 
             self.supabase.table(self.table).update(
                 {"total_likes": total}
             ).eq("id", author_id).execute()
+
+            #update recipe likes 
+            recipe_res = (
+            self.supabase.table("recipes_public")
+            .select("likes")
+            .eq("recipeid", recipe_id)
+            .execute()
+        )
+
+            current_likes = recipe_res.data[0].get("likes", 0)
+            new_likes = current_likes + 1
+
+            self.supabase.table("recipes_public").update(
+                {"likes": new_likes}
+            ).eq("recipeid", recipe_id).execute()
 
             return {"data": "Recipe liked"}, 200
 
@@ -124,11 +142,52 @@ class UserService:
                 .eq("id", user_id)
                 .execute()
             )
-
             return {"data": res.data}, 200
 
         except Exception as e:
             return {"error": str(e)}, 500
+
+
+    def get_liked_recipes(self, user_id):
+        try:
+            # 1) Load profile
+            prof = (
+                self.supabase.table("users_public")
+                .select("liked_recipes")
+                .eq("id", user_id)
+                .execute()
+            )
+
+            if not prof.data:
+                return {"error": "User not found"}, 404
+
+            liked = prof.data[0].get("liked_recipes", [])
+
+            # Convert strings → integers (CRITICAL FIX)
+            liked_int = []
+            for x in liked:
+                try:
+                    liked_int.append(int(x))
+                except:
+                    continue
+
+            if not liked_int:
+                return {"data": []}, 200
+
+            # 2) Fetch recipes using proper integer list
+            recipes = (
+                self.supabase.table("recipes_public")
+                .select("*")
+                .in_("recipeid", liked_int)
+                .execute()
+            )
+
+            return {"data": recipes.data}, 200
+
+        except Exception as e:
+            print("ERROR in get_liked_recipes:", e)
+            return {"error": str(e)}, 500
+
 
 
     # -------------------------------------------------
