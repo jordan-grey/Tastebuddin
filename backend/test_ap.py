@@ -1,18 +1,60 @@
 import unittest
 from recipe_service import RecipeService
-from supabase import create_client, Client
+from supabase import create_client
 import os
 import io
 
 class RecipeServiceDatabaseTest(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
+        # Load service key (must be SERVICE ROLE key!)
         url = os.getenv("SUPABASE_URL")
         key = os.getenv("SUPABASE_KEY")
-        cls.supabase: Client = create_client(url, key)
+        cls.supabase = create_client(url, key)
 
-        # Inject Supabase into RecipeService
         cls.service = RecipeService(cls.supabase)
+
+        # ---- Create REAL Auth user ----
+        auth_user = cls.supabase.auth.admin.create_user({
+            "email": "unit_test1@example.com",
+            "password": "test-password-123",
+            "email_confirm": True
+        })
+
+        cls.test_user_id = auth_user.user.id
+
+        # ---- Insert into users_public ----
+        cls.supabase.table("users_public").upsert({
+            "id": cls.test_user_id,
+            "username": "unit_test_user",
+            "liked_recipes": [],
+            "disliked_recipes": [],
+            "unseen_recipes": [],
+            "allergens": [],
+            "total_likes": 0
+        }).execute()
+
+        # ---- Create a base recipe for tests ----
+        base_recipe = {
+            "title": "BASE Brownie",
+            "description": "Test base recipe",
+            "ingredients": ["sugar"],
+            "directions": ["bake"],
+            "category": "dessert",
+            "dietaryrestrictions": ["vegetarian"],
+            "minutestocomplete": 5,
+            "authorid": cls.test_user_id,
+            "authorname": "unit_test_user",
+        }
+
+        created = cls.service.create_recipe(base_recipe)
+        if "data" not in created:
+            raise RuntimeError(f"Failed to create base recipe: {created}")
+
+        cls.base_recipe_id = created["data"][0]["recipeid"]
+
+    # ---------- TESTS ----------
 
     def test_1_create_recipe(self):
         data = {
@@ -23,99 +65,88 @@ class RecipeServiceDatabaseTest(unittest.TestCase):
             "category": "dessert",
             "dietaryrestrictions": ["vegetarian"],
             "minutestocomplete": 30,
-            "authorid": "fce74316-e465-412b-8e57-8ff7cbd72d3d",
-            "authorname": "test_kadee"
+            "authorid": self.test_user_id,
+            "authorname": "unit_test_user"
         }
+
         result = self.service.create_recipe(data)
-        #print("Create Response:", result)
         self.assertIn("data", result)
 
     def test_2_get_all_recipes(self):
         result = self.service.get_all_recipes()
-        #print("All Recipes:", result)
         self.assertIn("data", result)
 
     def test_3_get_single_recipe(self):
-        result, status = self.service.get_recipe(1)
+        result, status = self.service.get_recipe(self.base_recipe_id)
         self.assertEqual(status, 200)
         self.assertIn("data", result)
 
     def test_4_update_recipe(self):
         update_data = {"description": "Updated via unit test!"}
-        result = self.service.update_recipe(1, update_data)
-        print("Update Response:", result)
+        result = self.service.update_recipe(self.base_recipe_id, update_data)
         self.assertIn("data", result)
 
     def test_5_delete_recipe(self):
-        """Test deleting an existing recipe."""
-        # Step 1: Create a temporary recipe to delete
-        recipe_data = {
-            "title": "Delete Me Brownie",
-            "description": "Temporary record to be deleted.",
-            "ingredients": ["flour", "sugar"],
-            "directions": ["mix", "bake"],
+        """Create → Delete → Confirm"""
+        temp_recipe = {
+            "title": "DeleteMe",
+            "description": "Temp record",
+            "ingredients": ["flour"],
+            "directions": ["mix"],
             "dietaryrestrictions": ["vegetarian"],
             "category": "dessert",
-            "authorid": "97c33e9b-e74d-425b-8700-b7aa20ff9da7",
-            "authorname": "sarah_test",
+            "authorid": self.test_user_id,
+            "authorname": "unit_test_user",
             "minutestocomplete": 10,
-            "datecreated": "2025-11-07T18:00:00.000000+00:00",
         }
 
-        # Create the recipe first
-        create_resp = self.service.create_recipe(recipe_data)
-        self.assertIn("data", create_resp)
-        new_id = create_resp["data"][0]["recipeid"]
+        created = self.service.create_recipe(temp_recipe)
+        self.assertIn("data", created)
+        recipe_id = created["data"][0]["recipeid"]
 
-        # Step 2: Delete the recipe
-        delete_resp = self.service.delete_recipe(new_id)
-        print("Delete Response:", delete_resp)
-        self.assertIn("message", delete_resp)
+        delete_resp = self.service.delete_recipe(recipe_id)
         self.assertEqual(delete_resp["message"], "Recipe deleted successfully")
 
-        # Step 3: Confirm it’s gone
-        confirm_resp, status = self.service.get_recipe(new_id)
-        result = confirm_resp
+        confirm_resp, status = self.service.get_recipe(recipe_id)
         self.assertEqual(status, 404)
-        self.assertIn("error", result)
+        self.assertIn("error", confirm_resp)
 
     def test_6_create_recipe_with_image(self):
-        fake_image = (io.BytesIO(b"fake image bytes"), "test.jpg")
+        fake_img_bytes = io.BytesIO(b"fake image bytes")
+
+        class FakeFile:
+            def __init__(self, f, name):
+                self.fileobj = f
+                self.filename = name
+            def read(self):
+                return self.fileobj.read()
+
+        img = FakeFile(fake_img_bytes, "test.jpg")
 
         data = {
-            "title": "ImageTest Brownie",
+            "title": "ImageTest",
             "description": "Testing image upload",
             "ingredients": ["flour"],
             "directions": ["mix"],
             "category": "dessert",
             "dietaryrestrictions": ["vegetarian"],
             "minutestocomplete": 10,
-            "authorid": "97c33e9b-e74d-425b-8700-b7aa20ff9da7",
-            "authorname": "sarah_test",
+            "authorid": self.test_user_id,
+            "authorname": "unit_test_user",
         }
 
-        # Assemble file-like object
-        class FakeFile:
-            def __init__(self, fileobj, name):
-                self.fileobj = fileobj
-                self.filename = name
-            def read(self):
-                return self.fileobj.read()
-
-        image_file = FakeFile(fake_image[0], fake_image[1])
-
-        result = self.service.create_recipe(data, image_file)
+        result = self.service.create_recipe(data, img)
         self.assertIn("data", result)
-
         recipe = result["data"][0]
+
         self.assertIn("photopath", recipe)
         self.assertTrue(recipe["photopath"].startswith("http"))
 
-        # Cleanup
-        recipe_id = recipe["recipeid"]
-        delete_resp = self.service.delete_recipe(recipe_id)
-        self.assertEqual(delete_resp["message"], "Recipe deleted successfully")
+        # cleanup
+        rid = recipe["recipeid"]
+        delete = self.service.delete_recipe(rid)
+        self.assertEqual(delete["message"], "Recipe deleted successfully")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
-
