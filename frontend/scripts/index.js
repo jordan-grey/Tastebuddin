@@ -7,20 +7,7 @@ const username = "jimmy jone bow"
 
 if (userID) {
     //For someone who is logged in
-    signin_button.innerHTML = "Sign Out"
-    if (document.getElementById("sign-in-out-button").onclick) {
-        //TODO: implement logout?
-    }
-    let main_body= document.querySelector("#main-body");
-    main_body.innerHTML = `
-    <h1>Tastebuddin</h1>
-    <p>Welcome ` + username + `!</p>
     
-    <div class="btn">
-        <button id="sign-in-out-button"></button>
-    </div>
-    <p>THIS IS DIFFERENT THAN THE OTHER PAGE</p>
-    `;
     // Swipy button reveal
     // Logout button id="sign-in-out-button"
 } else {
