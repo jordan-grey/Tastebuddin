@@ -2,20 +2,21 @@ const API_BASE = "http://localhost:5001";
 
 
 const userID = localStorage.getItem("tastebuddin_user_id");
-let signin_button= document.querySelector("#sign-in-out-button");
-const username = "jimmy jone bow"
 
 if (userID) {
-    //For someone who is logged in
-    
-    // Swipy button reveal
-    // Logout button id="sign-in-out-button"
+    // For someone who is logged in
+    // Hide logged out
+    document.getElementById("logged-out").style.display = "none";
+    // Show logged in
+    document.getElementById("logged-in").style.display = "block";
+    return;
+
 } else {
     // For someone who is logged out
-    // Log in button id="sign-in-out-button"
+    // Show logged out
+    document.getElementById("logged-out").style.display = "block";
+    // Hide logged in
+    document.getElementById("logged-in").style.display = "none";
+    return;
     
-    
-
-    // Describe how amazing it is *wiggles eyebrows*
-
 }

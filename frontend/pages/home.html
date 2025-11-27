@@ -7,31 +7,31 @@ This will be index.html if you are correctly logged in.
 <head>
     <title>Tastebuddin</title>
     <link rel="stylesheet" href="../style/index.css">
+    <link rel="stylesheet" href="../style/nav-dropdown.css">
 </head>
 
 <body> <!--NAV Buttons-->
-<div id="main-body" class="container">
-    <a href="./swipey.html">
-        <button id="swipey-button">Swipey</button>
-    </a>
-    <a href="./leaderboard.html">
-        <button id="leaderboard-button">Leaderboard</button>
-    </a>
-    <a href="./collection.html">
-        <button id="collections-button">Collection Page</button>
-    </a>
-    <a href="./new-recipes.html">
-        <button id="new-recipes-button">New Recipes Page</button>
-    </a>
-    <a href="./collections.html">
-        <button id="collections-button">Collection Page</button>
-    </a>
+ <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<div class="topnav" id="myTopnav">
+  <a href="./home.html" class="active">Home</a>
+  <a href="./swipey.html">Swipe</a>
+  <a href="./collection.html">Collection</a>
+  <a href="./user-profile.html">Profile</a>
+  <a href="./leaderboard.html">Leaderboard</a>
+  <a href="./new-recipes.html">Create Recipe</a>
+  <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+    <i class="fa fa-bars"></i>
+  </a>
+</div> 
     <h1>TASTEBUDDIN</h1>
     <p>Welcome <a href="#" id="username"></a>!</p>
     
     
 </div>
 <script src="../scripts/index.js"></script>
+<script src="../scripts/nav-dropdown.js"></script>
 </body>
 
 </html>

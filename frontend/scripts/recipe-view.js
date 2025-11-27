@@ -6,12 +6,13 @@ const params = new URLSearchParams(window.location.search);
 const id = params.get("recipeid");
 
 fetch(`${API_BASE}/recipes/${id}`)
-    .then(res => res.json())
-    .then(data => {
-        console.log("User feed: ", data);
-        renderFeed(data.data);
+    .then(res => {res.json()
+        console.log("User feed: ", res);
     })
-
+/*.then(data => {
+        console.log("User feed: ", data);
+        renderFeed(data.data); 
+    })   */
 
 let titleRef = document.querySelector("#recipe-title");
 let imgEl = document.querySelector("#recipe-image");
@@ -48,9 +49,6 @@ function showDefault() {
 
     // Show "no more recipes"
     document.getElementById("no-recipes").style.display = "block";
-
-    document.getElementById("like-button").disabled = true;
-    document.getElementById("reject-button").disabled = true;
     return;
 }
 
