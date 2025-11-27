@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tastebuddin Login</title>
+    <link rel="stylesheet" href="../style/signin.css">
+    <link rel="stylesheet" href="../style/swipey.css">
+</head>
+
+<body>
+<div id="container" class="recipe-viewport">
+    <div id="recipe-info">
+        <div class="recipe-background-img">
+            <img id="recipe-image" src="default-resources/empty-dish.jpg" alt="The default empty dish.">
+        </div>
+        <div id="recipe-header">
+            <h1 id="recipe-title">Recipe Name</h1>
+            <h2 id="recipe-est-time">Estimated time to complete</h2>
+            <!-- <h2 id="recipe-num-servings">Estimate # of Servings</h2> -->
+        </div>
+        <div id="recipe-body">
+            <p id="recipe-overview">Quick Overview</p>
+            <p id="recipe-allergen-tags">Allergen Tags</p> 
+            <!-- ^ this is going to be changed to be tag bubbles -->
+            <!-- not sure how i want to do that yet tho -->
+            <div id="recipe-ingredient-list-container">
+                <h3 id="recipe-ingredient-header">Ingredients</h3>
+                <div id="recipe-ingredient-list">
+                </div>
+            </div>
+            <div id="recipe-steps-container">
+                <h3 id="recipe-steps-header">Instructions</h3>
+                <div id="recipe-steps-list">
+                </div>
+        </div>
+    </div>
+</div>
+
+<script src="../scripts/swipey.js"></script>
+</body>
+
+</html>
