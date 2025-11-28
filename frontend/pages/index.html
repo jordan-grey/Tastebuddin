@@ -7,8 +7,7 @@
 </head>
 
 <body>
-<script src="../scripts/index.js"></script>
-<script src="../scripts/nav-dropdown.js"></script>
+<script src="/scripts/nav-dropdown.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <div id="logged-out">
@@ -45,7 +44,7 @@
         <a href="./leaderboard.html">Leaderboard</a>
         <a href="./new-recipes.html">Create Recipe</a>
         <!--Logout Functionality not working. Troubleshottin other thing-->
-        <!--<a href="javascript:"  onclick="logOut()">Log Out</a>--> 
+        <a href="javascript:"  onclick="logOut()">Log Out</a> 
         <a href="javascript:void(0);" class="icon" onclick="myFunction()">
             <i class="fa fa-bars"></i>
         </a>
@@ -56,8 +55,42 @@
         <p>This is Tastebuddin, an all new app that can help you find the perfect recipes for you.</p>
     </div>
 </div>
-
+<script src="/scripts/index.js" defer></script>
  <!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+async function logOut() {
+    try {
+        // 1. Load config
+        const cfg = await fetch("/config/config.json").then(res => res.json());
+
+        // 2. Create supabase client
+        const supabaseClient = window.supabase.createClient(
+            cfg.SUPABASE_URL,
+            cfg.SUPABASE_ANON_KEY
+        );
+
+        // 3. Sign out
+        const { error } = await supabaseClient.auth.signOut();
+
+        if (error) {
+            console.error("Sign out error:", error);
+            alert("Logout failed: " + error.message);
+            return;
+        }
+
+        // 4. Clear localStorage (this is required for your login logic)
+        localStorage.removeItem("tastebuddin_user_id");
+
+        // 5. Redirect to home
+        window.location.href = "./index.html";
+
+    } catch (err) {
+        console.error("Logout exception:", err);
+        alert("Logout failed: " + err);
+    }
+}
+</script>
 </body>
 
 </html>
