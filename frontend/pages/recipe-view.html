@@ -3,31 +3,53 @@
 <head>
     <title>Tastebuddin Profile</title>
     <link rel="stylesheet" href="../style/swipey.css">
+    <link rel="stylesheet" href="../style/nav-dropdown.css">
 </head>
 
 <body>
-    <div id="container">
-        <div id="img-container"></div>
-        <div id="info-container">
-            <h1 id="recipe-title">Recipe Name</h1>
-            <h2 id="author"></h2>
-            <h2 id="recipe-est-time">Estimated Time to Complete</h2>
+
+<div class="topnav" id="myTopnav">
+  <a href="#home" class="active">Home</a>
+  <a href="#news">News</a>
+  <a href="#contact">Contact</a>
+  <a href="#about">About</a>
+  <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+    <i class="fa fa-bars"></i>
+  </a>
+</div>
+<!-- 🔹 This wrapper is what showDefault() hides -->
+<div id="recipe-card">
+    <div id="container" class="recipe-viewport">
+        <div id="recipe-info">
+            <div class="recipe-background-img">
+                <img id="recipe-image"
+                     src="default-resources/empty-dish.jpg"
+                     alt="The default empty dish.">
+            </div>
+
+            <div id="recipe-header">
+                <h1 id="recipe-title">Recipe Name</h1>
+                <h2 id="recipe-est-time">Estimated time to complete</h2>
+                <!-- <h2 id="recipe-num-servings">Estimate # of Servings</h2> -->
+            </div>
 
             <div id="recipe-body">
                 <p id="recipe-overview">Quick Overview</p>
-                <p id="recipe-allergen-tags">allergen tags</p>
-                <!-- TODO ^ FIX TAHT SHIT -->
-                 <div id="recipe-ingredient-list-container">
+                <p id="recipe-allergen-tags">Allergen Tags</p>
+
+                <div id="recipe-ingredient-list-container">
                     <h3 id="recipe-ingredient-header">Ingredients</h3>
                     <div id="recipe-ingredient-list"></div>
-                 </div>
-                 <div id="recipe-steps-container">
+                </div>
+
+                <div id="recipe-steps-container">
                     <h3 id="recipe-steps-header">Instructions</h3>
                     <div id="recipe-steps-list"></div>
-                 </div>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
     <!-- 🔹 This is what showDefault() shows when feed is empty -->
     <div id="no-recipes" style="display:none; text-align:center; margin-top: 40px;">
@@ -36,5 +58,6 @@
     </div>
 
 <script src="../scripts/recipe-view.js"></script>
+<script src="../scripts/nav-dropdown.js"></script>
 </body>
 </html>

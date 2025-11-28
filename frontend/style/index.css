@@ -30,21 +30,3 @@ h1 { /* TASTEBUDDIN */
   font-weight: 700;
   flex-direction: row;
 }
-ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  background-color: #88b6e7;
-  display: flex;
-}
-
-ul li a {
-  display: block;
-  color: #fff;
-  padding: 14px 16px;
-  text-decoration: none;
-}
-
-ul li a:hover {
-  background-color: #111111;
-}
