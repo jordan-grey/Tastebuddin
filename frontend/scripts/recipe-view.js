@@ -1,6 +1,42 @@
 const API_BASE = "http://localhost:5001";
 
 
+data = [
+    {
+        "authorid": "07989fc3-19cc-4478-b814-122510715767",
+        "authorname": "test_user",
+        "category": "dinner",
+        "datecreated": "2025-11-19T00:56:50.301391+00:00",
+        "description": "Pasta in a creamy tomato sauce with parmesan.",
+        "dietaryrestrictions": [
+            "dairy",
+            "gluten"
+        ],
+        "directions": [
+            "Bring a large pot of salted water to a boil and cook the pasta according to package instructions. Reserve 1/2 cup of pasta water.",
+            "In a saucepan, heat olive oil over medium heat and sauté minced garlic until fragrant, about 1 minute.",
+            "Stir in the tomato sauce and let it simmer for 3-4 minutes.",
+            "Add the heavy cream and stir until the sauce turns a light orange color.",
+            "Sprinkle in Parmesan and stir until melted and smooth.",
+            "Fold in the cooked pasta, adding a splash of reserved pasta water if needed to loosen.",
+            "Season with salt, pepper, and Italian herbs to taste.",
+            "Serve warm with extra Parmesan on top."
+        ],
+        "ingredients": [
+            "pasta",
+            "tomato sauce",
+            "cream",
+            "parmesan",
+            "garlic"
+        ],
+        "likes": 1,
+        "minutestocomplete": 25,
+        "photopath": "https://nxzaxhgyzapnnqcfjxpn.supabase.co/storage/v1/object/public/recipe_images/693a084f-4932-45eb-96bc-3628ba35029e_creamy_tomato_pasta.jpg",
+        "recipeid": 60,
+        "title": "Creamy Tomato Pasta"
+    }
+]
+
 
 const params = new URLSearchParams(window.location.search);
 const id = params.get("recipeid");
@@ -87,3 +123,5 @@ function showRecipe() {
         ? `${r.minutestocomplete} Minutes`
         : "N/A";
 }
+document.addEventListener("DOMContentLoaded", () => {
+    renderRecipe(data)});
