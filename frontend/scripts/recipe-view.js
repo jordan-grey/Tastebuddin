@@ -42,13 +42,11 @@ const params = new URLSearchParams(window.location.search);
 const id = params.get("recipeid");
 
 fetch(`${API_BASE}/recipes/${id}`)
-    .then(res => {res.json()
-        console.log("User feed: ", res);
-    })
-/*.then(data => {
+    .then(res => res.json())
+    .then(data => {
         console.log("User feed: ", data);
-        renderFeed(data.data); 
-    })   */
+        renderRecipe(data.data);
+    });
 
 let titleRef = document.querySelector("#recipe-title");
 let imgEl = document.querySelector("#recipe-image");
@@ -56,6 +54,7 @@ let descEl = document.querySelector("#recipe-overview");
 let ingEl = document.querySelector("#recipe-ingredient-list");
 let dirEl = document.querySelector("#recipe-steps-list");
 let timeEl = document.querySelector("#recipe-est-time");
+let idx = 0;
 
 function renderRecipe(feedData) {
     console.log("Rendering recipe:", feedData);
@@ -123,5 +122,4 @@ function showRecipe() {
         ? `${r.minutestocomplete} Minutes`
         : "N/A";
 }
-document.addEventListener("DOMContentLoaded", () => {
-    renderRecipe(data)});
+
