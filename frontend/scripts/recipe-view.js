@@ -36,8 +36,7 @@ data = [
         "title": "Creamy Tomato Pasta"
     }
 ]
-
-
+/*
 const params = new URLSearchParams(window.location.search);
 const id = params.get("recipeid");
 
@@ -47,7 +46,7 @@ fetch(`${API_BASE}/recipes/${id}`)
         console.log("User feed: ", data);
         renderRecipe(data.data);
     });
-
+*/
 let titleRef = document.querySelector("#recipe-title");
 let imgEl = document.querySelector("#recipe-image");
 let descEl = document.querySelector("#recipe-overview");
@@ -123,3 +122,4 @@ function showRecipe() {
         : "N/A";
 }
 
+renderRecipe(data);
