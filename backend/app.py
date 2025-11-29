@@ -68,6 +68,31 @@ def delete_recipe(recipe_id):
     result = service.delete_recipe(recipe_id)
     return jsonify(result), 200 if "error" not in result else 400
 
+@app.route("/recipes/<int:recipe_id>/edit", methods=["POST"])
+def edit_recipe(recipe_id):
+    try:
+        author_id = request.form.get("authorid")
+        if not author_id:
+            return jsonify({"error": "Missing authorid"}), 400
+
+        updates = dict(request.form)
+        updates.pop("authorid", None)  # avoid rewriting author
+
+        image_file = request.files.get("image")
+
+        result, status = service.edit_recipe(
+            recipe_id,
+            author_id,
+            updates,
+            image_file
+        )
+
+        return jsonify(result), status
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/feed/<identifier>", methods=["GET"])
 def get_user_feed(identifier):
     """
