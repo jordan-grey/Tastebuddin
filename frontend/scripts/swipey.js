@@ -34,11 +34,15 @@ function renderFeed(feedData) {
     console.log("Rendering feed:", feedData);
 
     if (!feedData || feedData.length === 0) {
+        recipes = [];
         showDefault();
+        console.log("Feed is empty; returning!");
         return;
     }
 
     // Save backend feed into global recipes list
+    console.log("All of the feedData: ", feedData);
+
     recipes = feedData;
 
     // reset index
@@ -51,6 +55,13 @@ function renderFeed(feedData) {
 function showDefault() {
     // TODO: write something to show default and be like
     // no recipes :(
+    titleRef.innerHTML = "No Recipes to Show!";
+    imgEl.src = "default-resources/empty-dish.jpg";
+    descEl.innerHTML = "Help us give you more recipes - "
+        "Create a new recipe now!";
+    ingEl.innerHTML  = "";
+    dirEl.innerHTML  = "";
+    timeEl.innerHTML = "";
     return;
 }
 
@@ -94,14 +105,22 @@ function showRecipe() {
 function nextRecipe() {
     // whole bunch of animation stuff
 
+    // this is a timeout because the animation takes time to run
     setTimeout(() => {
-        idx = idx + 1;
+        if (idx >= recipes.length-1)
+        {
+            showDefault();
+        } else {
+            idx++;
+            showRecipe();
+        }
         // more animation stuff
-        showRecipe();
     }, 300);
 }
 
 async function like() {
+    if (idx >= recipes.length-1) return;
+
     // current recipe
     const curr_idx = idx;
     const r = recipes[curr_idx];
@@ -116,7 +135,7 @@ async function like() {
         }),
     };
     // console.log("Current recipe: ", r);
-    // console.log("Attempting to POST: ", delivery);
+    console.log("Attempting to POST: ", delivery);
     // console.log("Attempted POST body: ", delivery.body);
 
     // connect to backend, deliver recipe to be liked
@@ -127,6 +146,7 @@ async function like() {
 }
 
 async function dislike() {
+    if (idx >= recipes.length-1) return;
 
     // current recipe
     const curr_idx = idx;
@@ -142,7 +162,7 @@ async function dislike() {
     };
 
     // console.log("Current recipe: ", r);
-    // console.log("Attempting to POST: ", delivery);
+    console.log("Attempting to POST: ", delivery);
     // console.log("Attempted POST body: ", delivery.body);
 
     // connect to backend, deliver recipe to be liked
