@@ -35,10 +35,22 @@
             display: block;
         }
     </style>
+    <link rel="stylesheet" href="../style/nav-dropdown.css">
 </head>
 
 <body>
-
+<script src="/scripts/nav-dropdown.js"></script>
+<div class="topnav" id="myTopnav">
+    <a href="./index.html">Home</a>
+    <a href="./swipey.html">Swipe</a>
+    <a href="./collection.html">Collection</a>
+    <a href="./user-profile.html">Profile</a>
+    <a href="./leaderboard.html" class="active">Leaderboard</a>
+    <a href="./new-recipes.html">Create Recipe</a>
+    <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+        <i class="fa fa-bars"></i>
+    </a>
+</div> 
 <div class="container">
     <div class="tabs">
         <div class="tab" data-tab="daily">Daily</div>
