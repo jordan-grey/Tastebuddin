@@ -36,7 +36,7 @@ data = [
         "title": "Creamy Tomato Pasta"
     }
 ]
-
+/*
 const params = new URLSearchParams(window.location.search);
 const id = params.get("recipeid");
 
@@ -46,9 +46,11 @@ fetch(`${API_BASE}/recipes/${id}`)
         console.log("User feed: ", data);
         renderRecipe(data.data);
     });
-
+*/
 let titleRef = document.querySelector("#recipe-title");
 let imgEl = document.querySelector("#recipe-image");
+let alrgEl = document.querySelector("#recipe-allergen-tags");
+let authEl = document.querySelector("#recipe-author-name");
 let descEl = document.querySelector("#recipe-overview");
 let ingEl = document.querySelector("#recipe-ingredient-list");
 let dirEl = document.querySelector("#recipe-steps-list");
@@ -106,6 +108,15 @@ function showRecipe() {
     // description
     descEl.innerHTML = r.description || "(No description)";
 
+    //allergens
+    alrgEl.innerHTML = (r.dietaryrestrictions || [])
+        .map(i => `<p>${i}</p>`)
+        .join("");
+
+    //author
+    authEl.innerHTML = r.authorname || "(No Author Name)";
+
+
     // ingredients: array → HTML list
     ingEl.innerHTML = (r.ingredients || [])
         .map(i => `<p>${i}</p>`)
@@ -122,3 +133,4 @@ function showRecipe() {
         : "N/A";
 }
 
+renderRecipe(data)
