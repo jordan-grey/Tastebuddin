@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #fafafa;
+      background: #88b6e7;
       padding: 20px;
     }
 
@@ -168,6 +168,8 @@ async function loadRecipes() {
     }
 
     allRecipes = json.data;
+
+    console.log("Loaded liked recipes:", json.data);
     renderRecipes(allRecipes);
 
   } catch (err) {
@@ -198,7 +200,7 @@ function renderRecipes(list) {
     card.innerHTML = `
       ${image}
       
-      <div class="header-row">
+      <div class="header-row" data-id="${recipe.recipeid}">
         <div class="title">${recipe.title}</div>
         <div class="menu-wrap" style="position:relative;">
           <button class="menu-btn">⋮</button>
@@ -213,6 +215,14 @@ function renderRecipes(list) {
       <div class="description">${recipe.description || "No description."}</div>
       <div class="ingredients-list"><strong>Ingredients:</strong> ${ingredients}</div>
     `;
+
+    const header = card.querySelector(".header-row");
+
+    header.addEventListener("click", () => {
+        const id = recipe.recipeid;
+        window.location.href = `recipe-view.html?recipeid=${id}`;
+    });
+
 
     // --- Dropdown logic ---
     const menuBtn = card.querySelector(".menu-btn");
@@ -229,6 +239,9 @@ function renderRecipes(list) {
     container.appendChild(card);
   });
 }
+
+
+
 
 async function removeFromCollection(recipe_id, cardElement) {
   await fetch(`${API_BASE}/user/dislike`, {

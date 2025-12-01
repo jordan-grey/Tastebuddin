@@ -27,17 +27,17 @@ leaderboard_service = LeaderboardService(supabase)
 user_service = UserService(supabase)
 
 
-@app.route('/')
-def index():
-    return {"message": "CookSwipe API running!"}
+@app.route("/")
+def home():
+    return app.send_static_file("index.html")
 
 @app.errorhandler(404)
 def error_404(e):
-    return render_template('404.html')
+    return app.send_static_file('404.html')
 
 @app.errorhandler(403)
 def error_403(e):
-    return render_template('403.html')
+    return app.send_static_file('403.html')
 
 @app.route("/recipes", methods=["GET"])
 def get_all_recipes():
