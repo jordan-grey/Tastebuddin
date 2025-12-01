@@ -47,6 +47,18 @@ body {
     font-weight: bold;
 }
 
+#recipe-author-name::before {
+    content: "Created by: ";
+}
+
+#recipe-est-time::before {
+    content: "Time to Complete: ";
+}
+
+#recipe-likes::before {
+    content: "Likes: ";
+}
+
 .recipe-viewport p li {
     margin-top: 8px;
     font-size: 17px;
