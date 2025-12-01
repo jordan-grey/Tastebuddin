@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head> 
   <meta charset="UTF-8">
   <title>Saved recipes</title>
   <style>
@@ -27,6 +27,7 @@
       padding: 15px;
       box-shadow: 0 3px 8px rgba(0,0,0,0.15);
       transition: transform .2s;
+      position: relative;
     }
 
     .recipe-card:hover {
@@ -41,10 +42,55 @@
       margin-bottom: 10px;
     }
 
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      position: relative; /* ensure dropdown can position relative to the header */
+    }
+
     .title {
       font-size: 20px;
       font-weight: bold;
-      margin-bottom: 5px;
+    }
+
+    .menu-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0; /* align to right of header-row */
+      top: calc(100% + 6px); /* place dropdown directly below header-row */
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      z-index: 100;
+      min-width: 180px;
+      padding: 8px 0;
+    }
+
+    .dropdown.show {
+      display: block;
+    }
+
+    .dropdown button {
+      width: 100%;
+      padding: 10px;
+      background: none;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .dropdown button:hover {
+      background: #f0f0f0;
     }
 
     .author {
@@ -55,20 +101,20 @@
 
     .category-tag {
       display: inline-block;
-      background: transparent;
-      color: #333;
       padding: 4px 8px;
       border-radius: 6px;
       font-size: 12px;
       margin-bottom: 10px;
+      color: #333;
     }
-    .category-breakfast { background-color: #FFEE8C; } /* pastel yellow */
-    .category-lunch { background-color: #ffc067; }     /* pastel orange */
-    .category-dinner { background-color: #ff746c; }    /* pastel red */
-    .category-dessert { background-color: #c9a0dc; }   /* purple wisteria*/
-    .category-vegan { background-color: #80ef80; }     /* pastel green */
-    .category-snack { background-color: #836953; }     /* brown */
-    .category-drink { background-color: #9dd9f3; }     /* light blue */
+
+    .category-breakfast { background-color: #FFEE8C; }
+    .category-lunch { background-color: #ffc067; }
+    .category-dinner { background-color: #ff746c; }
+    .category-dessert { background-color: #c9a0dc; }
+    .category-vegan { background-color: #80ef80; }
+    .category-snack { background-color: #836953; }
+    .category-drink { background-color: #9dd9f3; }
 
     .description {
       margin-bottom: 10px;
@@ -82,8 +128,9 @@
 </head>
 <body>
 
-  <h1>Saved Recipes</h1>
-  <div style="text-align:center; margin-bottom:20px;">
+<h1>Saved Recipes</h1>
+
+<div style="text-align:center; margin-bottom:20px;"> 
   <label for="categoryFilter">Filter by category:</label>
   <select id="categoryFilter">
     <option value="all">All</option>
@@ -94,111 +141,116 @@
     <option value="vegan">Vegan</option>
     <option value="snack">Snack</option>
     <option value="drink">Drink</option>
-        </select>
-   </div>
+  </select>
+</div>
 
-  <div id="recipe-container">Loading recipes...</div>
+<div id="recipe-container">Loading recipes...</div>
 
-  <script>
-    const API_BASE = "http://127.0.0.1:5001"; // 🔥 UPDATE IF NEEDED
-    const user_id = localStorage.getItem("tastebuddin_user_id");
-    if (!user_id) {
-        alert("No user logged in — redirecting...");
-        window.location.href = "sign-in.html";
-    }
-    let allRecipes = [] // use to store recipes so i can access for filtering
-    async function loadRecipes() {
-        try {
-            const res = await fetch(`${API_BASE}/user/${user_id}/liked`);
-            const json = await res.json();
+<script>
+const API_BASE = "http://127.0.0.1:5001";
+const user_id = localStorage.getItem("tastebuddin_user_id");
 
-            if (!json.data || !Array.isArray(json.data)) {
-                console.error("Backend returned an error or invalid data:", json);
-                return;  // stop running the recipe rendering so the page doesn’t crash
-            }
+if (!user_id) {
+  alert("No user logged in — redirecting...");
+  window.location.href = "sign-in.html";
+}
 
-            allRecipes = json.data; // allRecipes = the recipes
-            const container = document.getElementById("recipe-container");
-            container.innerHTML = ""; // clear loading text
+let allRecipes = [];
 
-            json.data.forEach(recipe => {
-                const card = document.createElement("div");
-                card.className = "recipe-card";
+async function loadRecipes() {
+  try {
+    const res = await fetch(`${API_BASE}/user/${user_id}/liked`);
+    const json = await res.json();
 
-                const image = recipe.photopath 
-                ? `<img src="${recipe.photopath}" class="recipe-image" />`
-                : `<div class="recipe-image" style="background:#ddd;display:flex;align-items:center;justify-content:center;">No Image</div>`;
-
-                const ingredients = recipe.ingredients && recipe.ingredients.length
-                    ? recipe.ingredients.join(", ")
-                    : "—";
-
-                // Determine category class
-                const categoryClass = recipe.category 
-                    ? `category-${recipe.category.toLowerCase()}` 
-                    : "category-uncategorized";
-
-                card.innerHTML = `
-                    ${image}
-                    <div class="title">${recipe.title}</div>
-                    <div class="author">By: ${recipe.authorname ?? "Unknown"}</div>
-                    <div class="category-tag ${categoryClass}">${recipe.category ?? "Uncategorized"}</div>
-                    <div class="description">${recipe.description || "No description."}</div>
-                    <div class="ingredients-list"><strong>Ingredients:</strong> ${ingredients}</div>
-                    `;
-
-                container.appendChild(card);
-            });
-
-        } 
-        
-        catch (error) {
-            console.error("Failed to load recipes:", error);
-        }
-        // Filter listener (inline)
-        document.getElementById("categoryFilter").addEventListener("change", (e) => {
-            const selected = e.target.value;
-            const container = document.getElementById("recipe-container");
-            container.innerHTML = ""; // clear previous cards
-
-            const filtered = selected === "all"      // filtered == the selected category
-            ? allRecipes
-            : allRecipes.filter(r => r.category.toLowerCase() === selected);
-
-            filtered.forEach(recipe => { // loop through the recieps and rerender the recipes because we're filtering out the ones we dont want
-                // for now this is repeated code which i guess is a bad look
-                const card = document.createElement("div");
-                card.className = "recipe-card";
-
-                const image = recipe.photopath 
-                    ? `<img src="${recipe.photopath}" class="recipe-image" />`
-                    : `<div class="recipe-image" style="background:#ddd;display:flex;align-items:center;justify-content:center;">No Image</div>`;
-
-                const ingredients = recipe.ingredients && recipe.ingredients.length
-                    ? recipe.ingredients.join(", ")
-                    : "—";
-
-                const categoryClass = recipe.category 
-                    ? `category-${recipe.category.toLowerCase()}` 
-                    : "category-uncategorized";
-
-                card.innerHTML = `
-                    ${image}
-                    <div class="title">${recipe.title}</div>
-                    <div class="author">By: ${recipe.authorname ?? "Unknown"}</div>
-                    <div class="category-tag ${categoryClass}">${recipe.category ?? "Uncategorized"}</div>
-                    <div class="description">${recipe.description || "No description."}</div>
-                    <div class="ingredients-list"><strong>Ingredients:</strong> ${ingredients}</div>
-                    `;
-
-                container.appendChild(card);
-                });
-        });
+    if (!json.data || !Array.isArray(json.data)) {
+      console.error("Invalid data:", json);
+      return;
     }
 
+    allRecipes = json.data;
+    renderRecipes(allRecipes);
 
-    loadRecipes();
-  </script>
+  } catch (err) {
+    console.error("Failed to load recipes:", err);
+  }
+}
+
+function renderRecipes(list) {
+  const container = document.getElementById("recipe-container");
+  container.innerHTML = "";
+
+  list.forEach(recipe => {
+    const card = document.createElement("div");
+    card.className = "recipe-card";
+
+    const image = recipe.photopath 
+      ? `<img src="${recipe.photopath}" class="recipe-image" />`
+      : `<div class="recipe-image" style="background:#ddd;display:flex;align-items:center;justify-content:center;">No Image</div>`;
+
+    const ingredients = recipe.ingredients?.length
+      ? recipe.ingredients.join(", ")
+      : "—";
+
+    const categoryClass = recipe.category
+      ? `category-${recipe.category.toLowerCase()}`
+      : "";
+
+    card.innerHTML = `
+      ${image}
+      
+      <div class="header-row">
+        <div class="title">${recipe.title}</div>
+        <div class="menu-wrap" style="position:relative;">
+          <button class="menu-btn">⋮</button>
+          <div class="dropdown">
+            <button class="remove-btn">Remove from collection</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="author">By: ${recipe.authorname ?? "Unknown"}</div>
+      <div class="category-tag ${categoryClass}">${recipe.category ?? "Uncategorized"}</div>
+      <div class="description">${recipe.description || "No description."}</div>
+      <div class="ingredients-list"><strong>Ingredients:</strong> ${ingredients}</div>
+    `;
+
+    // --- Dropdown logic ---
+    const menuBtn = card.querySelector(".menu-btn");
+    const dropdown = card.querySelector(".dropdown");
+
+    menuBtn.addEventListener("click", () => {
+      dropdown.classList.toggle("show");
+    });
+
+    card.querySelector(".remove-btn").addEventListener("click", () => {
+      removeFromCollection(recipe.recipeid, card);
+    });
+
+    container.appendChild(card);
+  });
+}
+
+async function removeFromCollection(recipe_id, cardElement) {
+  await fetch(`${API_BASE}/user/dislike`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id, recipe_id })
+  });
+
+  cardElement.remove();
+}
+
+document.getElementById("categoryFilter").addEventListener("change", (e) => {
+  const selected = e.target.value;
+  const filtered = selected === "all"
+    ? allRecipes
+    : allRecipes.filter(r => r.category.toLowerCase() === selected);
+
+  renderRecipes(filtered);
+});
+
+loadRecipes();
+</script>
 
 </body>
 </html>
