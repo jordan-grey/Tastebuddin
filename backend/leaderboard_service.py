@@ -33,6 +33,7 @@ class LeaderboardService:
             leaderboard = [
                 {
                     "rank": idx + 1,
+                    "recipeid": r["recipeid"], 
                     "author": r["authorname"],
                     "title": r["title"],
                     "likes": r.get("likes", 0),
