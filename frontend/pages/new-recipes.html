@@ -6,10 +6,24 @@
   <link rel="stylesheet" href="../style/newrecipes.css">
   <!-- import Montserrat -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style/nav-dropdown.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
 <body>
-
+  <script src="/scripts/nav-dropdown.js"></script>
+  
+  <div class="topnav" id="myTopnav">
+      <a href="./index.html">Home</a>
+      <a href="./swipey.html">Swipe</a>
+      <a href="./collection.html" class="active">Collection</a>
+      <a href="./user-profile.html">Profile</a>
+      <a href="./leaderboard.html">Leaderboard</a>
+      <a href="./new-recipes.html">Create Recipe</a>
+      <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+          <i class="fa fa-bars"></i>
+      </a>
+  </div>
   <div class="form-container">
     <h1>Create a New Recipe</h1>
     <form id="recipeForm" onsubmit="submitRecipe(event)">

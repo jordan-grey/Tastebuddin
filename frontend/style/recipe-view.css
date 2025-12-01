@@ -12,8 +12,8 @@ body {
 
 #container {
     position: relative;
-    margin-top: 50px;
-    width: 450px;
+    margin: 50px auto;
+    max-width: 80%;
     height: auto;
     display: flex;
     justify-content: center;
@@ -45,6 +45,18 @@ body {
     margin-top: 10px;
     font-size: 26px;
     font-weight: bold;
+}
+
+#recipe-author-name::before {
+    content: "Created by: ";
+}
+
+#recipe-est-time::before {
+    content: "Time to Complete: ";
+}
+
+#recipe-likes::before {
+    content: "Likes: ";
 }
 
 .recipe-viewport p li {
