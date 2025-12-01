@@ -12,8 +12,8 @@ body {
 
 #container {
     position: relative;
-    margin-top: 50px;
-    width: 450px;
+    margin: 50px auto;
+    max-width: 80%;
     height: auto;
     display: flex;
     justify-content: center;
