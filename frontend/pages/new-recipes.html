@@ -3,77 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <title>Create a New Recipe</title>
-  <link rel="stylesheet" href="style/newrecipes.css">
+  <link rel="stylesheet" href="../style/newrecipes.css">
   <!-- import Montserrat -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-  
-   <!-- JQuery Library -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  
-  <!-- Supabase JS library -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-    // Initialize Supabase client
-    const SUPABASE_URL = 'https://nxzaxhgyzapnnqcfjxpn.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54emF4aGd5emFwbm5xY2ZqeHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxMTQzMTIsImV4cCI6MjA3NTY5MDMxMn0.bzW-RrlsyoZvvfWLh3YpZ0DO7WTKlNwEMSDK1V_3joc';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    async function submitRecipe(event) {
-      event.preventDefault();
-
-      // get user session
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        alert('You must be logged in to create a recipe.');
-        return;
-      }
-
-      // collect form data
-      const title = document.getElementById('title').value.trim();
-      const description = document.getElementById('description').value.trim();
-      const ingredients = document.getElementById('ingredients').value.split('\n').map(i => i.trim()).filter(Boolean);
-      const directions = document.getElementById('directions').value.split('\n').map(d => d.trim()).filter(Boolean);
-      const category = document.getElementById('category').value.trim();
-      const dietaryrestrictions = document.getElementById('dietaryrestrictions').value.split(',').map(d => d.trim()).filter(Boolean);
-      const minutestocomplete = parseInt(document.getElementById('minutestocomplete').value);
-      const photopath = document.getElementById('photopath').value.trim() || null;
-
-
-      // Insert recipe into Supabase **note that right now theres no way to 
-      const { error } = await supabase.from('recipes_public').insert([
-        {
-          title,
-          description,
-          ingredients,
-          directions,
-          category,
-          dietaryrestrictions,
-          minutestocomplete,
-          photopath,
-          authorid: user.id,
-          authorname: user.user_metadata?.name || user.email || "Anonymous",
-          datecreated: new Date().toISOString(),
-          likes: 0
-        }
-      ]);
-
-      if (error) {
-        console.error(error);
-        alert('Error submitting recipe.');
-      } else {
-        alert('Recipe created successfully!');
-        form.reset();
-      }
-    }
-
-    window.submitRecipe = submitRecipe;
-  </script>
+  <link rel="stylesheet" href="../style/nav-dropdown.css">
 </head>
 <body>
-
+  <script src="/scripts/nav-dropdown.js"></script>
+  <div class="topnav" id="myTopnav">
+      <a href="./index.html">Home</a>
+      <a href="./swipey.html">Swipe</a>
+      <a href="./collection.html" class="active">Collection</a>
+      <a href="./user-profile.html">Profile</a>
+      <a href="./leaderboard.html">Leaderboard</a>
+      <a href="./new-recipes.html">Create Recipe</a>
+      <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+          <i class="fa fa-bars"></i>
+      </a>
+  </div>
   <div class="form-container">
     <h1>Create a New Recipe</h1>
     <form id="recipeForm" onsubmit="submitRecipe(event)">
@@ -84,7 +31,7 @@
       <input type="file" id="photo" accept="image/*">
 
       <label>Description</label>
-      <input type="text" id="descripition" placeholder="Explain your dish in detail" required>
+      <input type="text" id="description" required>
 
       <label>Category</label>
       <input type="text" id="category" placeholder="e.g. Dessert, Pasta">
@@ -93,17 +40,19 @@
       <input type="number" id="time" required>
 
       <label>Ingredients</label>
-      <textarea id="ingredients" placeholder="List ingredients..."></textarea>
+      <textarea id="ingredients"></textarea>
 
       <label>Instructions</label>
       <textarea id="instructions" placeholder="Step-by-step instructions..."></textarea>
 
       <label>Dietary Restrictions</label>
-      <input type="text" id="dietary" placeholder="e.g. vegan, gluten-free">
+      <input type="text" id="dietary" placeholder="vegan, gluten-free">
 
       <button type="submit" class="button">Submit Recipe</button>
     </form>
   </div>
 
+
+<script src="../scripts/new-recipe.js" ></script>
 </body>
 </html>

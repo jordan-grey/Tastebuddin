@@ -1,50 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tastebuddin Login</title>
+    <title>Tastebuddin Feed</title>
     <link rel="stylesheet" href="../style/signin.css">
     <link rel="stylesheet" href="../style/swipey.css">
+    <link rel="stylesheet" href="../style/recipe-view.css">
+    <link rel="stylesheet" href="../style/nav-dropdown.css">
 </head>
 
 <body>
-<div id="container" class="recipe-viewport">
-    <div id="recipe-info">
-        <div class="recipe-background-img">
-            <img id="recipe-image" src="default-resources/empty-dish.jpg" alt="The default empty dish.">
-        </div>
-        <div id="recipe-header">
-            <h1 id="recipe-title">Recipe Name</h1>
-            <h2 id="recipe-est-time">Estimated time to complete</h2>
-            <!-- <h2 id="recipe-num-servings">Estimate # of Servings</h2> -->
-        </div>
-        <div id="recipe-body">
-            <p id="recipe-overview">Quick Overview</p>
-            <p id="recipe-allergen-tags">Allergen Tags</p> 
-            <!-- ^ this is going to be changed to be tag bubbles -->
-            <!-- not sure how i want to do that yet tho -->
-            <div id="recipe-ingredient-list-container">
-                <h3 id="recipe-ingredient-header">Ingredients</h3>
-                <div id="recipe-ingredient-list">
-                </div>
+  <script src="/scripts/nav-dropdown.js"></script>
+  <div class="topnav" id="myTopnav">
+      <a href="./index.html">Home</a>
+      <a href="./swipey.html" class="active">Swipe</a>
+      <a href="./collection.html">Collection</a>
+      <a href="./user-profile.html">Profile</a>
+      <a href="./leaderboard.html">Leaderboard</a>
+      <a href="./new-recipes.html">Create Recipe</a>
+      <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+          <i class="fa fa-bars"></i>
+      </a>
+  </div>
+<!-- 🔹 This wrapper is what showDefault() hides -->
+<div id="recipe-card">
+    <div id="container" class="recipe-viewport">
+        <div id="recipe-info">
+            <div class="recipe-background-img">
+                <img id="recipe-image"
+                     src="default-resources/empty-dish.jpg"
+                     alt="The default empty dish.">
             </div>
-            <div id="recipe-steps-container">
-                <h3 id="recipe-steps-header">Instructions</h3>
-                <div id="recipe-steps-list">
-                </div>
+
+            <div id="recipe-header">
+                <h1 id="recipe-title">Recipe Name</h1>
+                <h2 id="recipe-est-time">Estimated time to complete</h2>
+                <!-- <h2 id="recipe-num-servings">Estimate # of Servings</h2> -->
             </div>
-            <div id="swipey-buttons">
-                <div id="reject-button" class="btn">
-                    X
+
+            <div id="recipe-body">
+                <p id="recipe-overview">Quick Overview</p>
+                <p id="recipe-allergen-tags">Allergen Tags</p>
+
+                <div id="recipe-ingredient-list-container">
+                    <h3 id="recipe-ingredient-header">Ingredients</h3>
+                    <div id="recipe-ingredient-list"></div>
                 </div>
-                <div id="like-button" class="btn">
-                    Y
+
+                <div id="recipe-steps-container">
+                    <h3 id="recipe-steps-header">Instructions</h3>
+                    <div id="recipe-steps-list"></div>
+                </div>
+
+                <div id="swipey-buttons">
+                    <!-- 🔹 make these buttons so .disabled works -->
+                    <button id="reject-button" class="btn">
+                        X
+                    </button>
+                    <button id="like-button" class="btn">
+                        Y
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- 🔹 This is what showDefault() shows when feed is empty -->
+<div id="no-recipes" style="display:none; text-align:center; margin-top: 40px;">
+    <h2>You're all caught up! 🎉</h2>
+    <p>No more recipes in your feed right now. Come back later for more tasty matches.</p>
+</div>
+
 <script src="../scripts/swipey.js"></script>
 </body>
-
 </html>

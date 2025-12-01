@@ -4,11 +4,14 @@ from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
 import uuid
+import json 
+
 
 load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
 
 
 class RecipeService:
@@ -101,6 +104,20 @@ class RecipeService:
             for field in required:
                 if field not in data:
                     return {"error": f"Missing required field: {field}"}, 400
+                
+
+            def parse_list(field):
+                        raw = data.get(field, "[]")
+                        if isinstance(raw, list):
+                            return raw
+                        try:
+                            return json.loads(raw)
+                        except:
+                            return []
+
+            data["ingredients"] = parse_list("ingredients")
+            data["directions"] = parse_list("directions")
+            data["dietaryrestrictions"] = parse_list("dietaryrestrictions")
 
             # First create recipe WITHOUT image
             response = self.supabase.table(self.table_name).insert(data).execute()
@@ -188,3 +205,74 @@ class RecipeService:
             return {"message": "Recipe deleted successfully"}
         except Exception as e:
             return {"error": str(e)}, 500
+
+    def edit_recipe(self, recipe_id, author_id, updates, image_file=None):
+        """
+        Safely update a recipe ONLY if the requester is the author.
+        Includes list parsing and optional image replacement.
+        """
+
+        try:
+            # 1. Fetch recipe
+            res = (
+                self.supabase.table(self.table_name)
+                .select("*")
+                .eq("recipeid", recipe_id)
+                .execute()
+            )
+            if not res.data:
+                return {"error": "Recipe not found"}, 404
+
+            recipe = res.data[0]
+
+            # 2. Permission check
+            if recipe["authorid"] != author_id:
+                return {"error": "Unauthorized: only the author can edit this recipe"}, 403
+
+            # 3. Parse list-like fields
+            def parse_list(field):
+                raw = updates.get(field)
+                if raw is None:
+                    return None
+                if isinstance(raw, list):
+                    return raw
+                try:
+                    return json.loads(raw)
+                except:
+                    return []
+
+            parsed = {}
+            for field in ["ingredients", "directions", "dietaryrestrictions"]:
+                parsed_list = parse_list(field)
+                if parsed_list is not None:
+                    parsed[field] = parsed_list
+
+            # Add the simple fields (title, description, category, minutes)
+            for field in ["title", "description", "category", "minutestocomplete"]:
+                if field in updates:
+                    parsed[field] = updates[field]
+
+            # 4. Handle optional image upload
+            if image_file:
+                # Delete old images first
+                self.delete_all_images_for_recipe(recipe_id)
+
+                url = self.upload_image(image_file, recipe_id)
+                parsed["photopath"] = url
+
+            # 5. Perform update
+            response = (
+                self.supabase.table(self.table_name)
+                .update(parsed)
+                .eq("recipeid", recipe_id)
+                .execute()
+            )
+
+            return {
+                "message": "Recipe updated successfully",
+                "data": response.data
+            }, 200
+
+        except Exception as e:
+            return {"error": str(e)}, 500
+

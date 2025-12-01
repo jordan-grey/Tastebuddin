@@ -43,13 +43,21 @@ function renderRecipes(type, rows) {
 
     rows.forEach((r, i) => {
         list.innerHTML += `
-            <li>
+            <li class="recipe-row" data-id="${r.recipeid}">
                 ${i + 1}. 
                 <span class="inline-block-item">${r.title}</span>
                 <span class="inline-block-item">${r.author}</span>
                 <span class="inline-block-item likes">${r.likes}</span>
             </li>
         `;
+    });
+
+    //  Make each row clickable
+    document.querySelectorAll(".recipe-row").forEach(row => {
+        row.addEventListener("click", () => {
+            const id = row.dataset.id;
+            window.location.href = `recipe-view.html?recipeid=${id}`;
+        });
     });
 }
 

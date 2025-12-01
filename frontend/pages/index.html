@@ -1,11 +1,97 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tastebuddin Index</title>
+    <link rel="stylesheet" href="../style/index.css">
+    <title>Tastebuddin Home Page</title>
+    <link rel="stylesheet" href="../style/nav-dropdown.css">
 </head>
 
 <body>
+<script src="/scripts/nav-dropdown.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+<div id="logged-out">
+    <div class="topnav" id="myTopnav">
+        <a href="./index.html" class="active">Home</a>
+        <a href="./sign-in.html">Sign In or Register</a>
+        <a href="./leaderboard.html">Leaderboard</a>
+        <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+            <i class="fa fa-bars"></i>
+        </a>
+    </div> 
+    <div class="container" id="main-body">
+        <h1>TASTEBUDDIN</h1>
+        <p>Welcome!</p>
+        <p>This is Tastebuddin, an all new app that can help you find the perfect recipes for you.</p>
+        <p>Finding recipes right before dinner can be difficult, and 
+            prepping days in advance can be laborious. Plus, sharing recipes 
+            with friends and families and making connections through food feels 
+            like something only a food blogger can do. Tastebuddin changes that, 
+            allowing for all users to contribute while sporting a 
+            simplistic design to help users discover and curate collections of recipes.</p> <!-- Taken from SDS --> 
+        <p>Create an account or log in for free!</p>
+        <p>The product is our grade in the class, not you or anything else.</p>
+    </div>
+</div>
+
+<div id="logged-in" >
+    <!--NAV Buttons-->
+    <div class="topnav" id="myTopnav">
+        <a href="./index.html" class="active">Home</a>
+        <a href="./swipey.html">Swipe</a>
+        <a href="./collection.html">Collection</a>
+        <a href="./user-profile.html">Profile</a>
+        <a href="./leaderboard.html">Leaderboard</a>
+        <a href="./new-recipes.html">Create Recipe</a>
+        <!--Logout Functionality working. ONLY ON THIS PAGE!!-->
+        <a href="javascript:"  onclick="logOut()">Log Out</a> 
+        <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+            <i class="fa fa-bars"></i>
+        </a>
+    </div> 
+    <div id="main-body">
+        <h1>TASTEBUDDIN</h1>
+        <p>Welcome!</p>
+        <p>This is Tastebuddin, an all new app that can help you find the perfect recipes for you. 
+            Create your own recipes and share them with your friends! Climb the leaderboards with the best ever recipes. </p>
+    </div>
+</div>
+<!--<script src="/scripts/index.js" defer></script>-->
+ <!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+async function logOut() {
+    try {
+        // 1. Load config
+        const cfg = await fetch("/config/config.json").then(res => res.json());
+
+        // 2. Create supabase client
+        const supabaseClient = window.supabase.createClient(
+            cfg.SUPABASE_URL,
+            cfg.SUPABASE_ANON_KEY
+        );
+
+        // 3. Sign out
+        const { error } = await supabaseClient.auth.signOut();
+
+        if (error) {
+            console.error("Sign out error:", error);
+            alert("Logout failed: " + error.message);
+            return;
+        }
+
+        // 4. Clear localStorage (this is required for your login logic)
+        localStorage.removeItem("tastebuddin_user_id");
+
+        // 5. Redirect to home
+        window.location.href = "./index.html";
+
+    } catch (err) {
+        console.error("Logout exception:", err);
+        alert("Logout failed: " + err);
+    }
+}
+</script>
 </body>
 
 </html>

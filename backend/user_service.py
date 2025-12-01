@@ -70,6 +70,8 @@ class UserService:
     # -------------------------------------------------
     def like_recipe(self, user_id: str, recipe_id: int, author_id: str):
         try:
+
+            #update user likes and unseen
             user, _ = self.get_user(user_id)
             profile = user["data"][0]
 
@@ -88,12 +90,28 @@ class UserService:
                 }
             ).eq("id", user_id).execute()
 
+            #update authors likes 
             author, _ = self.get_user(author_id)
             total = author["data"][0].get("total_likes", 0) + 1
 
             self.supabase.table(self.table).update(
                 {"total_likes": total}
             ).eq("id", author_id).execute()
+
+            #update recipe likes 
+            recipe_res = (
+            self.supabase.table("recipes_public")
+            .select("likes")
+            .eq("recipeid", recipe_id)
+            .execute()
+        )
+
+            current_likes = recipe_res.data[0].get("likes", 0)
+            new_likes = current_likes + 1
+
+            self.supabase.table("recipes_public").update(
+                {"likes": new_likes}
+            ).eq("recipeid", recipe_id).execute()
 
             return {"data": "Recipe liked"}, 200
 

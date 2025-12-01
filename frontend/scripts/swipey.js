@@ -55,18 +55,28 @@ function renderFeed(feedData) {
 function showDefault() {
     // TODO: write something to show default and be like
     // no recipes :(
-    titleRef.innerHTML = "No Recipes to Show!";
-    imgEl.src = "default-resources/empty-dish.jpg";
-    descEl.innerHTML = "Help us give you more recipes - "
-        "Create a new recipe now!";
-    ingEl.innerHTML  = "";
-    dirEl.innerHTML  = "";
-    timeEl.innerHTML = "";
+    console.log("No recipes left!");
+
+    // Hide recipe card
+    document.getElementById("recipe-card").style.display = "none";
+
+    // Show "no more recipes"
+    document.getElementById("no-recipes").style.display = "block";
+
+    document.getElementById("like-button").disabled = true;
+    document.getElementById("reject-button").disabled = true;
     return;
 }
 
+
+document.body.innerHTML.includes("no-recipes")
+
+
+
 function showRecipe() {
-    if (recipes.length === 0) return showDefault();
+    if (recipes.length === 0 || idx >= recipes.length || !recipes[idx]) {
+        return showDefault();
+    }
 
     const r = recipes[idx];
 
@@ -107,14 +117,14 @@ function nextRecipe() {
 
     // this is a timeout because the animation takes time to run
     setTimeout(() => {
-        if (idx >= recipes.length-1)
-        {
-            showDefault();
-        } else {
-            idx++;
-            showRecipe();
+        idx += 1;
+
+        if (idx >= recipes.length) {
+            recipes = [];
+            return showDefault();
         }
-        // more animation stuff
+    
+        showRecipe();
     }, 300);
 }
 
@@ -122,8 +132,12 @@ async function like() {
     if (idx >= recipes.length-1) return;
 
     // current recipe
+    if (recipes.length === 0 || !recipes[idx]) {
+        return showDefault();
+    }
     const curr_idx = idx;
     const r = recipes[curr_idx];
+    if (!r) return showDefault();
     const route = `${API_BASE}/user/like`;
     const delivery = {
         method: "POST",
@@ -146,11 +160,14 @@ async function like() {
 }
 
 async function dislike() {
-    if (idx >= recipes.length-1) return;
+    if (recipes.length === 0 || !recipes[idx]) {
+        return showDefault();
+    }
 
     // current recipe
     const curr_idx = idx;
     const r = recipes[curr_idx];
+    if (!r) return showDefault();
     const route = `${API_BASE}/user/dislike`;
     const delivery = {
         method: "POST",
