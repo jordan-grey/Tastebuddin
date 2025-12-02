@@ -1,5 +1,4 @@
 body {
-    font-family: Arial, sans-serif;
     background: #efefef;
     margin: 0;
     padding: 0;
@@ -8,6 +7,9 @@ body {
     justify-content: center;
     align-items: center;
     background-color: #88b6e7;
+}
+* {
+    font-family: 'Montserrat', sans-serif;
 }
 
 #container {
