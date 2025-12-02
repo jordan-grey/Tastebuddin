@@ -1,32 +1,83 @@
-<!-- jordan can do this one to appease kadee -->
- <!DOCTYPE html>
- <html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Tastebuddin Profile</title>
-    <link rel="stylesheet" href="../style/user-profile.css">
-    <link rel="stylesheet" href="../style/nav-dropdown.css">
-    <!-- Nav Bar Icon Style-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile</title>
+  <link rel="stylesheet" href="/style/nav-dropdown.css" />
+    <!-- use absolute path & cache-bust to ensure CSS loads when served from /pages/ -->
+    <!-- Load Montserrat for this page -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style/user-profile.css?v=2" />
 </head>
 
 <body>
-    <script src="/scripts/nav-dropdown.js"></script>
-    <div class="topnav" id="myTopnav">
-        <a href="./index.html">Home</a>
-        <a href="./swipey.html">Swipe</a>
-        <a href="./collection.html">Collection</a>
-        <a href="./user-profile.html">Profile</a>
-        <a href="./leaderboard.html" class="active">Leaderboard</a>
-        <a href="./new-recipes.html">Create Recipe</a>
-        <a href="javascript:void(0);" class="icon" onclick="myFunction()">
-            <i class="fa fa-bars"></i>
-        </a>
-    </div> 
-    <div id="container">
 
+  <!-- Navigation (match other pages) -->
+  <div class="topnav" id="myTopnav">
+    <a href="./index.html">Home</a>
+    <a href="./swipey.html">Swipe</a>
+    <a href="./collection.html">Collection</a>
+    <a href="./user-profile.html" class="active">Profile</a>
+    <a href="./leaderboard.html">Leaderboard</a>
+    <a href="./new-recipes.html">Create Recipe</a>
+    <a href="javascript:void(0);" class="icon" onclick="myFunction()">&#9776;</a>
+  </div>
+
+  <!-- Page Container -->
+  <div id="container">
+
+    <div class="profile-card">
+      <div class="profile-avatar">
+        <img id="profileImage" src="default-resources/empty-dish.jpg" alt="profile" />
+        <input id="profileFile" type="file" accept="image/*" capture="environment" style="display:none">
+        <div class="avatar-actions">
+          <div class="photo-dropdown">
+            <button id="changePhotoBtn" class="small dropdown-toggle" aria-haspopup="true" aria-expanded="false">Upload / Camera ▾</button>
+            <div class="dropdown-menu" id="photoMenu" role="menu" aria-hidden="true" style="display:none">
+              <button id="useCameraBtn" class="dropdown-item" role="menuitem">Use camera</button>
+              <button id="uploadFileBtn" class="dropdown-item" role="menuitem">Upload file</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-info">
+        <div class="profile-header">
+          <div class="name-column">
+            <h2 id="username">Loading…</h2>
+          </div>
+
+          <div class="likes-box">
+            <div class="likes-label">Total Likes</div>
+            <div class="likes-number"><span id="total-likes">Loading…</span></div>
+          </div>
+        </div>
+        <!-- Instruction intentionally removed per design request -->
+        <div class="actions-row">
+          <button id="signout-btn" class="small secondary">Sign Out</button>
+        </div>
+        <div id="profile-status" style="margin-top:10px;color:#a33;font-size:13px;display:none"></div>
+      </div>
     </div>
 
-<script src="../scripts/user-profile.js"></script>
+    <!-- Camera modal -->
+    <div id="cameraModal" class="modal" aria-hidden="true" style="display:none">
+      <div class="modal-inner">
+        <video id="cameraVideo" autoplay playsinline></video>
+        <div class="modal-actions">
+          <button id="snapBtn" class="small">Capture</button>
+          <button id="closeCamera" class="small secondary">Close</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts (SAFE POSITION) -->
+  <script src="/scripts/nav-dropdown.js" defer></script>
+  <!-- Supabase JS (client) needed by user-profile.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="/scripts/user-profile.js" defer></script>
 </body>
- </html>
+</html>

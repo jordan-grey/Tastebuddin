@@ -1,0 +1,82 @@
+/* User profile styles — follow project theme (rounded cards, pastel blue background) */
+body {
+	background: #88b6e7; /* keep consistent with other pages */
+	font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.profile-card {
+	max-width: 960px;
+	margin: 36px auto;
+	background: white;
+	border-radius: 16px;
+	padding: 28px;
+	display: flex;
+	gap: 24px;
+	align-items: center;
+	box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.profile-avatar {
+	width: 160px;
+	flex: 0 0 160px;
+	text-align: center;
+	position: relative;
+}
+
+.profile-avatar img {
+	width: 140px;
+	height: 140px;
+	object-fit: cover;
+	border-radius: 50%;
+	border: 6px solid #f4f6fb;
+	box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+	cursor: pointer;
+}
+
+.avatar-actions { margin-top: 10px; }
+.small { padding: 6px 12px; border-radius: 8px; background:#2976c7; color:#fff; border:none; cursor:pointer; }
+.small.secondary { background: #ddd; color: #333 }
+
+/* small dropdown attached to avatar actions */
+.photo-dropdown { position: relative; display: inline-block; }
+.dropdown-toggle { display:inline-flex; align-items:center; gap:8px; }
+.dropdown-menu { position: absolute; right: 0; top: calc(100% + 8px); background: #fff; border-radius: 10px; padding:6px; box-shadow: 0 8px 18px rgba(0,0,0,0.12); min-width:140px; z-index:30; border:1px solid rgba(20,30,60,0.06); }
+.dropdown-item { display:block; width:100%; text-align:left; padding:8px 10px; background:transparent; border:none; color:#164a7a; font-weight:600; border-radius:8px; cursor:pointer; }
+.dropdown-item:hover { background:rgba(10,30,60,0.04); }
+
+/* small caret adjustment */
+.dropdown-toggle::after { content: ''; margin-left:6px; }
+
+.profile-info { flex:1; }
+.profile-header { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:10px; }
+.name-column { flex: 1 1 auto; }
+.profile-info h2 { margin: 0 0 6px 0; font-size: 28px; color: #164a7a; }
+
+.likes-box { flex: 0 0 140px; text-align:center; background: linear-gradient(180deg,#f7fbff,#eef6ff); border-radius:12px; padding:10px; box-shadow: 0 6px 14px rgba(0,0,0,0.06); }
+.likes-label { font-size:12px; color:#4c6b8d; font-weight:600; letter-spacing:0.6px; }
+.likes-number { font-size:34px; font-weight:700; color:#1c4b7a; margin-top:6px; }
+.likes-number span { display:inline-block; min-width:40px; }
+.meta { color: #666; font-size: 14px; display:flex; gap:18px; margin-bottom:12px }
+.hint { color:#667; font-size: 13px }
+
+/* actions row used for centering small action buttons like Sign Out */
+.actions-row { margin-top: 14px; display:flex; justify-content:center; }
+
+/* Camera modal */
+.modal { position:fixed; inset:0; display:flex; justify-content:center; align-items:center; background: rgba(0,0,0,0.45); }
+.modal-inner { background:white; padding:16px; border-radius:10px; display:flex; flex-direction:column; gap:12px; align-items:center; }
+#cameraVideo { width: 360px; height: 270px; border-radius:6px; background:#000 }
+.modal-actions { display:flex; gap:8px }
+
+/* responsive */
+@media (max-width:720px) {
+ 	.profile-card { padding:18px; gap:14px; max-width:92vw; flex-direction:column; align-items:center }
+	.profile-avatar { width:120px }
+	.profile-avatar img { width:110px; height:110px }
+	#cameraVideo { width:90vw; height: 60vw }
+
+	/* stack header on small screens */
+	.profile-header { flex-direction:column; gap:12px; align-items:center; }
+	.likes-box { width:120px; }
+}
+
