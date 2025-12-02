@@ -6,7 +6,9 @@
   background-color: #fff;
   overflow: hidden;
 }
-
+* {
+    font-family: 'Montserrat', sans-serif;
+}
 /* Style the links inside the navigation bar */
 .topnav a {
   float: left;

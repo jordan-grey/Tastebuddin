@@ -1,23 +1,26 @@
 body {
-    font-family: Arial, sans-serif;
     background: #efefef;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
     background-color: #88b6e7;
 }
-
+* {
+    font-family: 'Montserrat', sans-serif;
+}
 #container {
     position: relative;
-    margin-top: 50px;
-    width: 450px;
+    margin: 50px auto;
+    max-width: 80%;
     height: auto;
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
 
 h1 { /* TASTEBUDDIN */
   text-align: center;
@@ -27,4 +30,15 @@ h1 { /* TASTEBUDDIN */
   margin: 40px;
   font-weight: 700;
   flex-direction: row;
+}
+.recipe-viewport {
+    width: 90%;
+    max-width: 1000px;
+    margin: 20px;
+    background-color: white;
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.2);
+    text-align: center;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
