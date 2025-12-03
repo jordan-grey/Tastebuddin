@@ -1,11 +1,7 @@
-# Serve static HTML/CSS/JS using nginx
-FROM nginx:stable-alpine
+FROM nginx:alpine
 
-# Remove default nginx static files
-RUN rm -rf /usr/share/nginx/html/*
+# Copy our custom config first
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Copy your frontend files
+# Copy entire frontend folder
 COPY . /usr/share/nginx/html
-
-# Expose nginx port
-EXPOSE 80
