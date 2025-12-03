@@ -11,7 +11,10 @@ from flask_cors import CORS
 
 
 
-app = Flask(__name__)
+app = Flask(
+    __name__
+)
+
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
