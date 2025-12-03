@@ -12,4 +12,4 @@ In order to run the program, you must have Docker installed and running.
 6. Navigate to ```localhost:3000```. This should automatically  open up the ```index.html``` page, where you can navigate to Sign-in and Registration.
 7. Create an account and log in. Once you are logged in, you should have access to all of the features Tastebuddin has to offer!
 
-Supabase is always active, so there should not be anymore steps to running the web applicaiton. Should you encounter any issues attempting to run Tastebuddin, feel free to reach out to Tastebuddin's team members for more information.
+Supabase is always active, so there should not be anymore steps to running the web application. Should you encounter any issues attempting to run Tastebuddin, feel free to reach out to Tastebuddin's team members for more information.
