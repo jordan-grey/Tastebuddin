@@ -118,20 +118,50 @@ function showRecipe() {
     authEl.innerHTML = r.authorname || "(No Author Name)";
     
     //likes
-    likesEl.innerHTML = r.likes || "(No Author Name)";
+
+    likesEl.textContent = r.likes ?? 0;
+
+
 
     // ingredients: array → HTML list
     ingEl.innerHTML = (r.ingredients || [])
         .map(i => `<p>${i}</p>`)
         .join("");
 
-    // directions: array → HTML list
-    dirEl.innerHTML = (r.directions || [])
-        .map(step => `<p>${step}</p>`)
-        .join("");
+        let steps = r.directions || [];
 
-    // estimated time
-    timeEl.innerHTML = r.minutestocomplete
-        ? `${r.minutestocomplete} Minutes`
-        : "N/A";
+        // if it's a string, try to parse JSON or wrap as single step
+        if (typeof steps === "string") {
+            try {
+                const parsed = JSON.parse(steps);
+                steps = Array.isArray(parsed) ? parsed : [steps];
+            } catch {
+                steps = [steps];
+            }
+        }
+    
+        // handle the case ['["step1","step2"]']
+        if (Array.isArray(steps) &&
+            steps.length === 1 &&
+            typeof steps[0] === "string" &&
+            steps[0].trim().startsWith("[")) {
+            try {
+                const parsedInner = JSON.parse(steps[0]);
+                if (Array.isArray(parsedInner)) {
+                    steps = parsedInner;
+                }
+            } catch {
+                // leave as-is if parsing fails
+            }
+        }
+    
+        // directions: array → HTML list
+        dirEl.innerHTML = steps
+            .map(step => `<p>${step}</p>`)
+            .join("");
+    
+        // estimated time
+        timeEl.innerHTML = r.minutestocomplete
+            ? `${r.minutestocomplete} Minutes`
+            : "N/A";
 }

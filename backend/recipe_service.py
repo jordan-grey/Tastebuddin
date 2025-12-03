@@ -105,6 +105,20 @@ class RecipeService:
                 if field not in data:
                     return {"error": f"Missing required field: {field}"}, 400
                 
+            author_id = data["authorid"]
+            user_lookup = (
+                self.supabase.table("users_public")
+                .select("username")
+                .eq("id", author_id)
+                .execute()
+            )
+            if not user_lookup.data:
+                return {"error": "Invalid authorid"}, 400
+
+            authorname = user_lookup.data[0]["username"]
+            data["authorname"] = authorname  # <-- REQUIRED FOR TABLE
+
+                
 
             def parse_list(field):
                         raw = data.get(field, "[]")
@@ -164,7 +178,11 @@ class RecipeService:
                 ).eq("recipeid", recipe_id).execute()
                 recipe["photopath"] = url
 
-            return {"message": "Recipe created successfully", "data": [recipe]}
+            return {
+                    "message": "Recipe created successfully",
+                    "recipeid": recipe_id,
+                    "data": [recipe]
+                }
         except Exception as e:
             return {"error": str(e)}, 500
 

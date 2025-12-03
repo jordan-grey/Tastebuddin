@@ -48,6 +48,13 @@ class UserService:
             return {"data": res.data}, 200
         except Exception as e:
             return {"error": str(e)}, 500
+        
+
+    def update_user(self, user_id, data):
+        return self.supabase.table("user_public") \
+            .update(data) \
+            .eq("id", user_id) \
+            .single()
 
     # -------------------------------------------------
     # UPDATE ALLERGENS
@@ -98,7 +105,7 @@ class UserService:
                 {"total_likes": total}
             ).eq("id", author_id).execute()
 
-            #update recipe likes 
+            #update recipe likes
             recipe_res = (
             self.supabase.table("recipes_public")
             .select("likes")
@@ -237,3 +244,24 @@ class UserService:
 
         except Exception as e:
             return {"error": str(e)}, 500
+        
+
+    def get_user_by_username(self, username):
+        result = (
+            self.supabase.table("user_public")
+            .select("*")
+            .eq("username", username)
+            .single()
+            .execute()
+        )
+        return result.data
+
+    def update_user_by_username(self, username, update_data):
+        result = (
+            self.supabase.table("user_public")
+            .update(update_data)
+            .eq("username", username)
+            .single()
+            .execute()
+        )
+        return result.data

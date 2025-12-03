@@ -295,11 +295,23 @@ def get_liked_recipes(user_id):
     return jsonify(data), status
 
 
-# @app.route("/recipe/<int:recipe_id>", methods=["GET"])
-# def get_recipe(recipe_id):
-#     svc = RecipeService(supabase)
-#     data, status = svc.get_recipe_by_id(recipe_id)
-#     return jsonify(data), status
+@app.route("/api/user_public/<username>", methods=["GET"])
+def get_user(username):
+    try:
+        user = user_service.get_user_by_username(username)
+        return jsonify(user)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/user_public/<username>", methods=["PUT"])
+def update_user(username):
+    try:
+        data = request.json
+        updated = user_service.update_user_by_username(username, data)
+        return jsonify(updated)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':
