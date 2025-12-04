@@ -1,3 +1,22 @@
+"""
+Purpose: Integration tests verifying interaction between RecipeService and a
+         real Supabase backend. Ensures creation, updating, deletion, and image
+         upload behavior work as expected.
+Created: December 2024
+Authors: Kadee Wheeler
+
+Part of System:
+    This is part of the automated testing suite for the Tastebuddin backend.
+    These tests use a real Supabase instance and Auth user to confirm correct
+    behavior of RecipeService under production-like conditions.
+
+Modifications:
+    - Documentation added (2025-12-04)
+"""
+
+
+
+
 import unittest
 from recipe_service import RecipeService
 from supabase import create_client
