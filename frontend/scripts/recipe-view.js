@@ -1,3 +1,30 @@
+/* 
+File: recipe-view.js
+Purpose: Handles loading, parsing, and rendering of an individual recipe displayed
+  on the recipe viewer page.
+System Role: Front-end controller for dynamic recipe viewing. Interacts with the backend
+  API, sanitizes/normalizes inconsistent recipe formats, and updates the DOM.
+  Also manages fallback behavior when recipes cannot be found or loaded.
+Edited Last: 2025-12-04
+Authors: Sarah Temple
+Modifications:
+  - Added URL parameter parsing to load recipe by recipeid.
+  - Added renderRecipe() to validate incoming backend data.
+  - Added showDefault() fallback UI for missing or invalid recipes.
+  - Improved steps/directions parsing to handle stringified arrays, mixed types,
+    and nested stringified JSON.
+  - Added dynamic HTML rendering for ingredients, allergens, and directions.
+  - Connected “no recipe found” UI with #no-recipes and #recipe-card containers.
+
+Uses:
+  - API_BASE — backend endpoint for retrieving recipes.
+  - HTML elements:
+      #recipe-title, #recipe-image, #recipe-allergen-tags, #recipe-author-name,
+      #recipe-likes, #recipe-overview, #recipe-ingredient-list,
+      #recipe-steps-list, #recipe-est-time, #recipe-card, #no-recipes
+  - URLSearchParams — reads ?recipeid=<id> from the page URL.
+*/
+
 const API_BASE = "http://localhost:5001";
 
 

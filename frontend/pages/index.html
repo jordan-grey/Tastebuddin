@@ -1,8 +1,25 @@
+<!-- 
+File: index.html
+Purpose: A landing page or home page. It allows for people to login if logged out
+or log out if they are currently logged in.
+System Role: Front-end UI along with some javascript linking to supabase auth. 
+Edited Last: 2025-12-04
+Authors: Sarah Temple
+Modifications:
+  - Created a page for both currently logged in and logged out users
+Dependencies:
+  - index.css - using recipe viewer box with some modifications
+  - nav-dropdown.css
+  - nav-dropdown.js
+  - font link to Montserrat
+  - some js in the bottom to allow for a type of importing supabase auth commands. 
+  - FontAwesome — for menu icon.
+-->
+
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="../style/newrecipes.css">
-    
+    <link rel="stylesheet" href="../style/index.css">
     <title>Tastebuddin Home Page</title>
     <link rel="stylesheet" href="../style/nav-dropdown.css">
 </head>
@@ -20,7 +37,7 @@
             <i class="fa fa-bars"></i>
         </a>
     </div> 
-    <div class="form-container">
+    <div class="recipe-viewport">
         <div class="container" id="main-body">
             <h1>TASTEBUDDIN</h1>
             <p>Welcome!</p>
@@ -32,7 +49,6 @@
                 allowing for all users to contribute while sporting a 
                 simplistic design to help users discover and curate collections of recipes.</p> <!-- Taken from SDS --> 
             <p>Create an account or log in for free!</p>
-            <p>The product is our grade in the class, not you or anything else.</p>
         </div>
     </div>
 </div>
@@ -52,7 +68,7 @@
             <i class="fa fa-bars"></i>
         </a>
     </div> 
-    <div class="form-container">
+    <div class="recipe-viewport">
         <div id="main-body">
             <h1>TASTEBUDDIN</h1>
             <p>Welcome!</p>

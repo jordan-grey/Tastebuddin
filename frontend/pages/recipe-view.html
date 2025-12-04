@@ -1,3 +1,29 @@
+<!-- 
+File: recipe-view.html
+Purpose:
+  Displays a formatted view of a single recipe, including image, author, 
+  ingredients, steps, tags, and metadata. Also handles the case where a 
+  recipe does not exist or cannot be found.
+System Role:
+  Front-end UI for viewing recipes. Uses JavaScript to dynamically load recipe
+  data, manage default/fallback views, and integrate with navigation functionality.
+Edited Last: 2025-12-04
+Authors: Sarah Temple
+Modifications:
+  - Initial creation of structured recipe display view.
+  - Added fallback "Recipe Not Found" screen.
+  - Improved layout using recipe-view.css; integrated navigation bar behavior.
+Dependencies:
+  - recipe-view.css — for recipe card and layout styling.
+  - nav-dropdown.css — for responsive navigation bar.
+  - nav-dropdown.js — for mobile navigation handling.
+  - recipe-view.js — loads recipe data and updates DOM.
+  - FontAwesome — for menu icon.
+Notes:
+  - The wrapper #recipe-card is hidden by showDefault() when no recipe exists.
+  - #no-recipes is shown when recipe fetch fails or page is accessed incorrectly.
+-->
+
 <!DOCTYPE html>
 <html>
 <head>
