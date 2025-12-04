@@ -1,3 +1,12 @@
+"""
+File: recipe_utility_test.py
+Purpose: Unit tests for the RecipeUtility class, validating allergen filtering,
+         unseen recipe filtering, and user feed generation logic.
+Part of: Tastebuddin backend system (Python + Supabase).
+Created: 2025-12-04
+Authors: Kadee Wheeler
+"""
+
 from supabase import Client
 from datetime import datetime, timezone
 from dotenv import load_dotenv

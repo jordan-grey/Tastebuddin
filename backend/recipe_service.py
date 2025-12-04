@@ -1,3 +1,20 @@
+"""
+File: recipe_service.py
+Purpose: Defines the RecipeService class, which manages all CRUD operations,
+         image uploads, and recipe-related logic for the Tastebuddin backend.
+System Context: This file is part of the Flask backend server and interacts
+         with Supabase (Postgres + Storage). It handles recipe creation,
+         updates, deletions, and storage of recipe images.
+Creation Date: December 2024
+Authors: Kadee Wheeler, ChatGPT (documentation support)
+
+Modification Log:
+- Added detailed upload/delete logic for Supabase storage.
+- Integrated allergen filtering and unseen recipe updates.
+- Added header comments and documentation for readability.
+"""
+
+
 from datetime import datetime, timezone
 from flask import jsonify
 from supabase import create_client, Client
