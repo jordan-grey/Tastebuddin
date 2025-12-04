@@ -1,11 +1,64 @@
 const API = "http://localhost:5001";
 const user_id = localStorage.getItem("tastebuddin_user_id");
 
+// Detect edit mode
+const params = new URLSearchParams(window.location.search);
+const editId = params.get("edit");
+let isEditing = !!editId;
+
+// ----------------------------
+// LOAD RECIPE FOR EDIT MODE
+// ----------------------------
+async function loadRecipeForEdit(recipeId) {
+    try {
+        const res = await fetch(`${API}/recipes/${recipeId}`);
+        const json = await res.json();
+
+        if (!res.ok || json.error) {
+            console.error("Error loading recipe:", json.error);
+            alert("Could not load recipe.");
+            return;
+        }
+
+        // Backend returns the recipe object directly
+        const r = json;  
+        console.log("Loaded recipe:", r);
+
+        const ingredients = Array.isArray(r.ingredients)
+            ? r.ingredients.join("\n")
+            : r.ingredients || "";
+
+        const directions = Array.isArray(r.directions)
+            ? r.directions.join("\n")
+            : r.directions || "";
+
+        document.getElementById("title").value = r.title || "";
+        document.getElementById("description").value = r.description || "";
+        document.getElementById("category").value = r.category || "";
+        document.getElementById("time").value = r.minutestocomplete || "";
+        document.getElementById("ingredients").value = ingredients;
+        document.getElementById("instructions").value = directions;
+        document.getElementById("dietary").value = r.dietaryrestrictions || "";
+
+        if (r.photopath) {
+            document.getElementById("previewImage").src = r.photopath;
+        }
+
+        document.getElementById("submitBtn").textContent = "Update Recipe";
+
+    } catch (err) {
+        console.error("Failed to load recipe:", err);
+    }
+}
+
+// -----------------------------------
+// SUBMIT NEW OR UPDATED RECIPE
+// -----------------------------------
 async function submitRecipe(event) {
     event.preventDefault();
 
     if (!user_id) {
-        alert("You must be logged in to create a recipe.");
+        alert("You must be logged in.");
         return;
     }
 
@@ -18,7 +71,6 @@ async function submitRecipe(event) {
     const dietary = document.getElementById("dietary").value;
     const photoFile = document.getElementById("photo").files[0];
 
-    // match backend: data = request.form AND image = request.files["image"]
     const form = new FormData();
     form.append("authorid", user_id);
     form.append("title", title);
@@ -33,27 +85,42 @@ async function submitRecipe(event) {
         form.append("image", photoFile);
     }
 
+    let url = `${API}/recipes`;
+    let method = "POST";
+
+    // EDIT MODE → send update to backend
+    if (isEditing) {
+        url = `${API}/recipes/${editId}`;
+        method = "PUT";
+    }
+
     try {
-        const res = await fetch(`${API}/recipes`, {
-            method: "POST",
+        const res = await fetch(url, {
+            method: method,
             body: form
         });
 
         const json = await res.json();
-        console.log("Create Recipe Response:", json);
+        console.log("Recipe Response:", json);
 
         if (!res.ok || json.error) {
-            alert("Error creating recipe: " + (json.error || res.status));
+            alert("Error saving recipe: " + (json.error || res.status));
             return;
         }
 
-        alert("Recipe created!");
-        
-        // Redirect to the recipe view page
-        window.location.href = `recipe-view.html?recipeid=${json.recipeid}`;
+        alert(isEditing ? "Recipe updated!" : "Recipe created!");
+
+        const recipeId = json.recipeid || editId;
+
+        window.location.href = `recipe-view.html?recipeid=${recipeId}`;
 
     } catch (err) {
         console.error("Failed to submit recipe:", err);
         alert("Something went wrong.");
     }
+}
+
+// If edit mode → load the recipe
+if (isEditing) {
+    loadRecipeForEdit(editId);
 }

@@ -1,3 +1,22 @@
+"""
+===============================================================================
+ File: leaderboard_service.py
+ Part of: Tastebuddin Backend System
+ Created: 2024-11-15
+ Authors: Kadee Wheeler
+
+ Description:
+     Defines leaderboard logic for the Tastebuddin application.
+     Provides:
+         - Daily leaderboard (last 24 hours)
+         - Weekly leaderboard (last 7 days)
+         - Author leaderboard (ranked by total likes)
+
+     This service is consumed by app.py routes.
+
+
+===============================================================================
+"""
 # leaderboard_service.py
 from datetime import datetime, timedelta
 
