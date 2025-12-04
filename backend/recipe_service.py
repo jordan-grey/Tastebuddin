@@ -293,4 +293,3 @@ class RecipeService:
 
         except Exception as e:
             return {"error": str(e)}, 500
-

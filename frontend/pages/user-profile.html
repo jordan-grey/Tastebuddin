@@ -9,6 +9,108 @@
     <!-- Load Montserrat for this page -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style/user-profile.css?v=2" />
+
+    <style>
+      /* === PROFILE PAGE CUSTOM CARDS (same as collection) === */
+    
+      .my-recipes-grid {
+        display: grid;
+        gap: 25px;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        margin-top: 20px;
+      }
+    
+      .profile-recipe-card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        transition: transform .2s;
+        position: relative;
+      }
+    
+      .profile-recipe-card:hover {
+        transform: scale(1.02);
+      }
+    
+      .profile-recipe-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+    
+      .profile-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+        position: relative;
+      }
+    
+      .profile-title {
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+    
+      .profile-menu-btn {
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+      }
+    
+      .profile-dropdown {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: calc(100% + 6px);
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        z-index: 100;
+        min-width: 160px;
+        padding: 8px 0;
+      }
+    
+      .profile-dropdown.show {
+        display: block;
+      }
+    
+      .profile-dropdown button {
+        width: 100%;
+        padding: 10px;
+        background: none;
+        border: none;
+        text-align: left;
+        cursor: pointer;
+      }
+    
+      .profile-dropdown button:hover {
+        background: #f0f0f0;
+      }
+    
+      .profile-category-tag {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        margin-bottom: 10px;
+      }
+      
+      .section-header {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 26px;
+        font-weight: 700;
+        color: #1d3557;
+        margin: 40px 0 20px 10px;
+      }
+
+    </style>
+    
 </head>
 
 <body>
@@ -61,6 +163,11 @@
       </div>
     </div>
 
+
+    <div class="section-header">Your Recipes</div>
+      <div id="my-recipes-list" class="recipe-list"></div>
+    </div>
+
     <!-- Camera modal -->
     <div id="cameraModal" class="modal" aria-hidden="true" style="display:none">
       <div class="modal-inner">
@@ -79,5 +186,132 @@
   <!-- Supabase JS (client) needed by user-profile.js -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="/scripts/user-profile.js" defer></script>
+  <script>
+    const API_BASE = "http://127.0.0.1:5001";
+    const userId = localStorage.getItem("tastebuddin_user_id");
+    
+    if (!userId) {
+      console.warn("No user logged in for profile.");
+    }
+    
+    async function loadMyCreatedRecipes() {
+      try {
+        console.log("Fetching recipes for author:", userId);
+    
+        const res = await fetch(`${API_BASE}/recipes?authorid=${userId}`);
+        const json = await res.json();
+    
+        console.log("Recipe response:", json);
+    
+        if (!json || !Array.isArray(json)) {
+          console.error("Invalid recipe response:", json);
+          return renderMyRecipes([]);
+        }
+    
+        renderMyRecipes(json);
+    
+      } catch (err) {
+        console.error("Failed to load created recipes:", err);
+        renderMyRecipes([]);
+      }
+    }
+    
+    function renderMyRecipes(recipes) {
+      const container = document.getElementById("my-recipes-list");
+      container.className = "my-recipes-grid";
+      container.innerHTML = "";
+
+      if (!recipes.length) {
+        container.innerHTML = `<p>You haven't created any recipes yet.</p>`;
+        return;
+      }
+
+      recipes.forEach(recipe => {
+        const card = document.createElement("div");
+        card.className = "profile-recipe-card";
+
+        const image = recipe.photopath 
+          ? `<img src="${recipe.photopath}" class="profile-recipe-image" />`
+          : `<div class="profile-recipe-image" style="background:#ddd;display:flex;align-items:center;justify-content:center;">No Image</div>`;
+
+        const ingredients = recipe.ingredients?.length
+          ? recipe.ingredients.join(", ")
+          : "—";
+
+        const categoryClass = recipe.category
+          ? `category-${recipe.category.toLowerCase()}`
+          : "";
+
+        card.innerHTML = `
+          ${image}
+
+          <div class="profile-header-row">
+            <div class="profile-title">${recipe.title}</div>
+            <div class="menu-wrap">
+              <button class="profile-menu-btn">⋮</button>
+              <div class="profile-dropdown">
+                <button onclick="viewRecipe(${recipe.recipeid})">View</button>
+                <button class="delete-btn">Delete Recipe</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-category-tag">${recipe.category ?? "Uncategorized"}</div>
+          <div class="description">${recipe.description || "No description."}</div>
+          <div class="ingredients-list"><strong>Ingredients:</strong> ${ingredients}</div>
+        `;
+
+        // Click title = view
+        card.querySelector(".profile-title").addEventListener("click", () => {
+          viewRecipe(recipe.recipeid);
+        });
+
+        // Dropdown menu logic
+        const menuBtn = card.querySelector(".profile-menu-btn");
+        const dropdown = card.querySelector(".profile-dropdown");
+
+        menuBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          dropdown.classList.toggle("show");
+        });
+
+        // Delete button
+        card.querySelector(".delete-btn").addEventListener("click", () => {
+          deleteRecipe(recipe.recipeid, card);
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    async function deleteRecipe(recipeId, cardElement) {
+      if (!confirm("Delete this recipe?")) return;
+
+      const res = await fetch(`${API_BASE}/recipes/${recipeId}`, {
+        method: "DELETE"
+      });
+
+      if (res.ok) {
+        cardElement.remove();
+      }
+    }
+
+
+// Close dropdown if click outside
+document.addEventListener("click", () => {
+  document.querySelectorAll(".profile-dropdown.show")
+    .forEach(d => d.classList.remove("show"));
+});
+
+    
+    function viewRecipe(id) {
+      window.location.href = `recipe-view.html?recipeid=${id}`;
+    }
+    
+    
+    // Load recipes immediately
+    loadMyCreatedRecipes();
+    </script>
+    
 </body>
 </html>

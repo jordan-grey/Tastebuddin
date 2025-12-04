@@ -17,7 +17,7 @@ class RecipeServiceDatabaseTest(unittest.TestCase):
 
         # ---- Create REAL Auth user ----
         auth_user = cls.supabase.auth.admin.create_user({
-            "email": "unit_test1@example.com",
+            "email": "unit_test3xs@example.com",
             "password": "test-password-123",
             "email_confirm": True
         })
