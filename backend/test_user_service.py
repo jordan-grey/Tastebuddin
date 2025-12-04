@@ -10,7 +10,7 @@ Part of: Tastebuddin Backend System
          UserService and RecipeService.
 
 Created: December 2025
-Authors: KD Wheeler, Team Tastebuddin
+Authors: Kadee Wheeler
 """
 
 import unittest

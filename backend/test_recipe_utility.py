@@ -1,3 +1,19 @@
+"""
+File Name: recipe_utility_test.py
+Purpose: Unit tests for the RecipeUtility class, verifying allergen filtering,
+         unseen recipe filtering, and feed generation logic used in the
+         Tastebuddin recipe-recommendation system.
+
+System Context:
+    This file is part of the Tastebuddin backend test suite. It ensures the
+    correctness of RecipeUtility, which performs allergen filtering,
+    unseen-recipe filtering, and feed computation for personalized user feeds.
+
+Created On: 2025-12-04
+Authors: Kadee Wheeler
+
+"""
+
 import unittest
 from recipe_utility import RecipeUtility
 
