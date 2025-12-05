@@ -1,3 +1,63 @@
+/* 
+  File: create_recipe.js
+  Created By: Evan and Kadee
+  Purpose:
+    Handles creation and editing of user recipes. This script powers the
+    "Create Recipe" page and supports both new submissions and edit mode
+    (when a recipe ID is passed via ?edit=<id> in the URL).
+
+  Main Features:
+    - Detects edit mode through URL query parameter (?edit=ID).
+    - Loads an existing recipe into the form for editing.
+    - Collects recipe form data (title, description, ingredients, steps, dietary restrictions).
+    - Handles optional image uploads through multipart FormData.
+    - Submits new recipes (POST) or updates existing ones (PUT).
+    - Redirects to the recipe view page upon successful submit.
+
+  Dependencies:
+    - API server at http://localhost:5001
+        • GET    /recipes/<id>         → retrieve a recipe for editing
+        • POST   /recipes              → create a new recipe
+        • PUT    /recipes/<id>         → update an existing recipe
+    - HTML page must contain input fields with IDs:
+        • title, description, category, time, ingredients, instructions,
+          dietary, photo, previewImage (optional for edit mode), submitBtn.
+    - LocalStorage:
+        • "tastebuddin_user_id" → identifies the author of the recipe.
+
+  Key Functions:
+    loadRecipeForEdit(recipeId):
+        - Fetches a recipe from backend.
+        - Pre-fills form with recipe data.
+        - Converts array fields (ingredients, directions) to newline-separated strings.
+        - Updates submit button to display “Update Recipe”.
+
+    submitRecipe(event):
+        - Prevents default form submit behavior.
+        - Validates that user is logged in.
+        - Collects all fields, formats arrays, builds FormData payload.
+        - Sends POST (new recipe) or PUT (editing).
+        - Alerts user on success or failure.
+        - Redirects to the appropriate recipe view page.
+
+  Behavior Summary:
+    - On page load:
+        • Checks URL for ?edit=<id>.
+        • If present, script enters edit mode and loads recipe into the form.
+        • If absent, page behaves as a new recipe creator.
+    - Photo upload is optional; backend only updates image when included.
+    - Arrays are sent as JSON strings to backend (ingredients + directions).
+    - After submit, user is navigated to recipe-view.html?recipeid=<id>.
+
+  Notes:
+    - Backend must return either:
+        { recipeid: <number> } on creation  
+        or the full recipe object for GET requests.
+    - Missing or invalid user_id will block submission.
+    - Includes robust console logging for debugging.
+
+*/
+
 const API = "http://localhost:5001";
 const user_id = localStorage.getItem("tastebuddin_user_id");
 

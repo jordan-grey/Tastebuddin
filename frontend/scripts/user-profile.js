@@ -1,3 +1,20 @@
+/* 
+  File: user-profile.js
+  Created by: Evan
+  Purpose: Handles profile page functionality including user auth, Supabase initialization, 
+         loading public profile data, and managing profile photo uploads (file or camera).
+  System Role: Front-end logic for user identity, avatar handling, and session management.
+
+  Behavior Summary:
+    - Attempts to load Supabase; falls back gracefully if config missing.
+    - Ensures user is authenticated.
+    - Loads + displays profile info.
+    - Provides smooth avatar update flow (upload or camera).
+    - Supports long-press activation on mobile.
+    - All features degrade gracefully when Supabase is absent.
+*/
+
+
 // =============================
 // SAFELY LOAD CONFIG
 // =============================
