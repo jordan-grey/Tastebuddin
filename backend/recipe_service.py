@@ -1,28 +1,33 @@
+
 """
-File: recipe_service.py
-Purpose: Defines the RecipeService class, which manages all CRUD operations,
-         image uploads, and recipe-related logic for the Tastebuddin backend.
-System Context: This file is part of the Flask backend server and interacts
-         with Supabase (Postgres + Storage). It handles recipe creation,
-         updates, deletions, and storage of recipe images.
-Creation Date: December 2024
-Authors: Kadee Wheeler, ChatGPT (documentation support)
+===============================================================
+ File: recipe_service.py
+ System: Tastebuddin — Recipe Discovery & Social Cooking App
+ Created: 2024-11-01
+ Authors: Kadee Wheeler
 
-Modification Log:
-- Added detailed upload/delete logic for Supabase storage.
-- Integrated allergen filtering and unseen recipe updates.
-- Added header comments and documentation for readability.
+ Description:
+     This file defines the RecipeService class, which handles all
+     database operations related to user recipes — including CRUD
+     operations, image uploads, storage management, and automatic
+     updates to user feed data (unseen recipe lists).
+
+     This module is part of the Tastebuddin backend and is used by
+     app.py to serve REST API endpoints.
+
+===============================================================
 """
 
-
+# -----------------------------
+# Imports & Environment Setup
+# -----------------------------
 from datetime import datetime, timezone
 from flask import jsonify
 from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
 import uuid
-import json 
-
+import json
 
 load_dotenv()
 
@@ -30,24 +35,47 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 
-
+# ===============================================================
+# CLASS: RecipeService
+# Handles all recipe CRUD + image storage + helper logic.
+# ===============================================================
 class RecipeService:
+    """
+    Service class for creating, retrieving, updating, and deleting
+    recipes in the Tastebuddin application.
+
+    Attributes:
+        supabase (Client): Supabase database client instance.
+        table_name (str): Name of the Supabase table storing recipes.
+        bucket (str): Name of the Supabase Storage bucket for images.
+    """
+
     def __init__(self, supabase):
+        """Initialize service with Supabase client."""
         self.supabase = supabase
         self.table_name = "recipes_public"
         self.bucket = "recipe_images"
 
-    # ------------------------------------------------------
-    # IMAGE UPLOAD
-    # ------------------------------------------------------
+    # ===========================================================
+    # IMAGE UPLOAD FUNCTIONS
+    # ===========================================================
+
     def upload_image(self, image_file, recipe_id=None):
         """
-        Uploads an image to Supabase Storage and returns the public URL.
+        Upload an image to Supabase Storage and return its public URL.
+
+        Args:
+            image_file (FileStorage): Raw uploaded image.
+            recipe_id (int | None): If known, image saved under this folder.
+
+        Returns:
+            str: Publicly accessible URL of the uploaded image.
+
+        Raises:
+            Exception: If upload fails.
         """
         ext = image_file.filename.split(".")[-1]
         filename = f"{uuid.uuid4()}.{ext}"
-
-        # Store inside a recipe folder: images/recipes/<id>/<filename>
         folder = f"images/recipes/{recipe_id or 'unassigned'}"
         full_path = f"{folder}/{filename}"
 
@@ -61,21 +89,32 @@ class RecipeService:
 
         return self.supabase.storage.from_(self.bucket).get_public_url(full_path)
 
-    # ------------------------------------------------------
-    # CLEANUP HELPERS
-    # ------------------------------------------------------
-    def delete_image_at_path(self, path: str):
-        """Delete a single file from Supabase Storage."""
+    # -----------------------------------------------------------
+
+    def delete_image_at_path(self, path):
+        """
+        Delete a single image file from Supabase Storage.
+
+        Args:
+            path (str): File path inside storage bucket.
+        """
         if not path:
             return
         try:
             self.supabase.storage.from_(self.bucket).remove([path])
-            print(f"[CLEANUP] Deleted image: {path}")
+            print(f"[CLEANUP] Deleted {path}")
         except Exception as e:
-            print(f"[CLEANUP ERROR] {e}")
+            print("[CLEANUP ERROR]", e)
 
-    def delete_all_images_for_recipe(self, recipe_id: int):
-        """Deletes all images stored under images/recipes/<recipeid>/"""
+    # -----------------------------------------------------------
+
+    def delete_all_images_for_recipe(self, recipe_id):
+        """
+        Delete all images stored inside a recipe folder.
+
+        Args:
+            recipe_id (int): Recipe identifier.
+        """
         folder = f"images/recipes/{recipe_id}"
 
         try:
@@ -86,20 +125,39 @@ class RecipeService:
             paths = [f"{folder}/{f['name']}" for f in files]
             self.supabase.storage.from_(self.bucket).remove(paths)
             print(f"[CLEANUP] Deleted {len(paths)} images for recipe {recipe_id}")
-        except Exception as e:
-            print(f"[CLEANUP ERROR] Could not delete folder {folder}: {e}")
 
-    # ------------------------------------------------------
-    # CRUD
-    # ------------------------------------------------------
+        except Exception as e:
+            print("[CLEANUP ERROR]", e)
+
+    # ===========================================================
+    # CRUD FUNCTIONS
+    # ===========================================================
+
     def get_all_recipes(self):
+        """
+        Fetch all recipes from the database.
+
+        Returns:
+            dict: { data: [...] } on success or { error: "..."} on failure.
+        """
         try:
             response = self.supabase.table(self.table_name).select("*").execute()
             return {"data": response.data}
         except Exception as e:
             return {"error": str(e)}
 
+    # -----------------------------------------------------------
+        
     def get_recipe(self, recipe_id):
+        """
+            Fetch a single recipe by ID.
+
+            Args:
+                recipe_id (int): Recipe identifier.
+
+            Returns:
+                tuple(dict, int): Response JSON + HTTP status.
+        """
         try:
             response = (
                 self.supabase.table(self.table_name)
@@ -107,103 +165,141 @@ class RecipeService:
                 .eq("recipeid", recipe_id)
                 .execute()
             )
+
             if not response.data:
                 return {"error": "Recipe not found"}, 404
-            return {"data": response.data}, 200
+
+            # Consistent with all other endpoints
+            return {"data": response.data[0]}, 200
+
         except Exception as e:
             return {"error": str(e)}, 500
 
+
+    # -----------------------------------------------------------
+
     def create_recipe(self, data, image_file=None):
+        """
+        Create a new recipe, update user unseen feeds, and optionally
+        upload image to storage.
+
+        Args:
+            data (dict): Raw form fields from the client.
+            image_file (FileStorage | None): Uploaded file.
+
+        Returns:
+            tuple(dict, int): JSON response + status code.
+        """
         try:
+            # Add timestamp
             data["datecreated"] = datetime.now(timezone.utc).isoformat()
 
+            # Required fields check
             required = ["title", "description", "ingredients", "directions", "authorid"]
             for field in required:
                 if field not in data:
                     return {"error": f"Missing required field: {field}"}, 400
-                
-            author_id = data["authorid"]
-            user_lookup = (
+
+            # Lookup author_name from users_public
+            lookup = (
                 self.supabase.table("users_public")
                 .select("username")
-                .eq("id", author_id)
+                .eq("id", data["authorid"])
                 .execute()
             )
-            if not user_lookup.data:
+            if not lookup.data:
                 return {"error": "Invalid authorid"}, 400
 
-            authorname = user_lookup.data[0]["username"]
-            data["authorname"] = authorname  # <-- REQUIRED FOR TABLE
+            data["authorname"] = lookup.data[0]["username"]
 
-                
-
+            # Convert list-like fields
             def parse_list(field):
-                        raw = data.get(field, "[]")
-                        if isinstance(raw, list):
-                            return raw
-                        try:
-                            return json.loads(raw)
-                        except:
-                            return []
+                raw = data.get(field, "[]")
+                if isinstance(raw, list):
+                    return raw
+                try:
+                    return json.loads(raw)
+                except:
+                    return []
 
             data["ingredients"] = parse_list("ingredients")
             data["directions"] = parse_list("directions")
             data["dietaryrestrictions"] = parse_list("dietaryrestrictions")
 
-            # First create recipe WITHOUT image
+            # Insert recipe WITHOUT image first
             response = self.supabase.table(self.table_name).insert(data).execute()
             recipe = response.data[0]
             recipe_id = recipe["recipeid"]
 
+            # ------------------------------------------------------
+            # Update user unseen recipe feeds
+            # ------------------------------------------------------
             try:
-                # Get all users
-                users_res = self.supabase.table("users_public").select("*").execute()
-                users = users_res.data or []
+                all_users = (
+                    self.supabase.table("users_public")
+                    .select("*")
+                    .execute()
+                ).data or []
 
-                # Get allergens from the recipe
-                recipe_allergens = recipe.get("dietaryrestrictions", []) or []
-                if isinstance(recipe_allergens, str):
-                    recipe_allergens = [recipe_allergens]
+                allergens = recipe.get("dietaryrestrictions", [])
 
-                for user in users:
-                    user_id = user["id"]
+                for user in all_users:
                     user_allergens = user.get("allergens", []) or []
-
-                    # skip if recipe conflicts with user allergens
-                    if any(a in recipe_allergens for a in user_allergens):
-                        continue
+                    if any(a in allergens for a in user_allergens):
+                        continue  # Skip unsafe recipes
 
                     unseen = user.get("unseen_recipes", []) or []
-
-                    # Add if not already there
                     if recipe_id not in unseen:
                         unseen.append(recipe_id)
-
                         self.supabase.table("users_public") \
                             .update({"unseen_recipes": unseen}) \
-                            .eq("id", user_id) \
+                            .eq("id", user["id"]) \
                             .execute()
 
             except Exception as e:
-                print("[WARN] Failed updating user unseen_recipes:", e)
+                print("[WARN] Failed unseen-update:", e)
 
-            # If image exists → upload + update recipe
+            # ------------------------------------------------------
+            # Upload IMAGE after row exists
+            # ------------------------------------------------------
             if image_file:
                 url = self.upload_image(image_file, recipe_id)
-                self.supabase.table(self.table_name).update(
-                    {"photopath": url}
-                ).eq("recipeid", recipe_id).execute()
+                self.supabase.table(self.table_name) \
+                    .update({"photopath": url}) \
+                    .eq("recipeid", recipe_id) \
+                    .execute()
                 recipe["photopath"] = url
 
             # Return created recipe id and data (no human-facing message)
             return {
+<<<<<<< HEAD
                 "recipeid": recipe_id,
                 "data": [recipe]
             }
+=======
+                "message": "Recipe created successfully",
+                "recipeid": recipe_id,
+                "data": recipe
+            }, 201
+
+>>>>>>> 88ab47c147623a10984b911c4921ae855e9d57d8
         except Exception as e:
             return {"error": str(e)}, 500
 
+    # -----------------------------------------------------------
+
     def update_recipe(self, recipe_id, updates, image_file=None):
+        """
+        Basic update for general fields (without permission control).
+
+        Args:
+            recipe_id (int)
+            updates (dict)
+            image_file (FileStorage | None)
+
+        Returns:
+            dict or tuple: update response.
+        """
         try:
             if image_file:
                 url = self.upload_image(image_file, recipe_id)
@@ -219,12 +315,31 @@ class RecipeService:
             if not response.data:
                 return {"error": "Recipe not found"}, 404
 
+<<<<<<< HEAD
             # Return updated data only
             return {"data": response.data}
+=======
+            return {
+                "message": "Recipe updated successfully",
+                "data": response.data
+            }, 200
+
+>>>>>>> 88ab47c147623a10984b911c4921ae855e9d57d8
         except Exception as e:
             return {"error": str(e)}, 500
 
+    # -----------------------------------------------------------
+
     def delete_recipe(self, recipe_id):
+        """
+        Delete a recipe and all associated images.
+
+        Args:
+            recipe_id (int)
+
+        Returns:
+            dict: Success or error message.
+        """
         try:
             self.delete_all_images_for_recipe(recipe_id)
 
@@ -238,19 +353,33 @@ class RecipeService:
             if not response.data:
                 return {"error": "Recipe not found"}, 404
 
+<<<<<<< HEAD
             # Return empty success payload (no human-facing message)
             return {"data": []}
+=======
+            return {"message": "Recipe deleted successfully"}
+
+>>>>>>> 88ab47c147623a10984b911c4921ae855e9d57d8
         except Exception as e:
             return {"error": str(e)}, 500
 
+    # -----------------------------------------------------------
+
     def edit_recipe(self, recipe_id, author_id, updates, image_file=None):
         """
-        Safely update a recipe ONLY if the requester is the author.
-        Includes list parsing and optional image replacement.
-        """
+        Safe update for an existing recipe. Only the author may edit.
 
+        Args:
+            recipe_id (int)
+            author_id (str)
+            updates (dict)
+            image_file (FileStorage | None)
+
+        Returns:
+            tuple(dict, int): Response + HTTP status.
+        """
         try:
-            # 1. Fetch recipe
+            # 1) Fetch recipe
             res = (
                 self.supabase.table(self.table_name)
                 .select("*")
@@ -262,11 +391,11 @@ class RecipeService:
 
             recipe = res.data[0]
 
-            # 2. Permission check
+            # 2) Permission check
             if recipe["authorid"] != author_id:
-                return {"error": "Unauthorized: only the author can edit this recipe"}, 403
+                return {"error": "Unauthorized"}, 403
 
-            # 3. Parse list-like fields
+            # 3) Parse list fields
             def parse_list(field):
                 raw = updates.get(field)
                 if raw is None:
@@ -280,24 +409,22 @@ class RecipeService:
 
             parsed = {}
             for field in ["ingredients", "directions", "dietaryrestrictions"]:
-                parsed_list = parse_list(field)
-                if parsed_list is not None:
-                    parsed[field] = parsed_list
+                val = parse_list(field)
+                if val is not None:
+                    parsed[field] = val
 
-            # Add the simple fields (title, description, category, minutes)
+            # Add simple text fields
             for field in ["title", "description", "category", "minutestocomplete"]:
                 if field in updates:
                     parsed[field] = updates[field]
 
-            # 4. Handle optional image upload
+            # 4) Replace image if provided
             if image_file:
-                # Delete old images first
                 self.delete_all_images_for_recipe(recipe_id)
-
                 url = self.upload_image(image_file, recipe_id)
                 parsed["photopath"] = url
 
-            # 5. Perform update
+            # 5) Update row
             response = (
                 self.supabase.table(self.table_name)
                 .update(parsed)
@@ -305,10 +432,28 @@ class RecipeService:
                 .execute()
             )
 
-            return {
-                "message": "Recipe updated successfully",
-                "data": response.data
-            }, 200
+            return {"message": "Recipe updated successfully", "data": response.data}, 200
 
         except Exception as e:
             return {"error": str(e)}, 500
+
+    # -----------------------------------------------------------
+
+    def get_recipes_by_author(self, authorid):
+        """
+        Fetch all recipes created by one user.
+
+        Args:
+            authorid (str): UUID of author.
+
+        Returns:
+            list: Recipe rows or empty list.
+        """
+        res = (
+            self.supabase
+                .table(self.table_name)
+                .select("*")
+                .eq("authorid", authorid)
+                .execute()
+        )
+        return res.data or []
