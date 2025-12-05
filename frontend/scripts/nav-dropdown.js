@@ -1,3 +1,20 @@
+/* 
+File: nav-dropdown.js
+Purpose:
+  Handles navigation bar behavior for the Tastebuddin interface, including:
+  - Responsive mobile menu toggle
+System Role:
+  Shared front-end utility script used across multiple pages. Provides user
+  session management and controls the responsive navigation dropdown.
+Edited Last: 2025-12-04
+Authors: Sarah
+Modifications:
+  - Added responsive hamburger menu toggle
+Uses:
+  - HTML element #myTopnav for responsive class toggling
+*/
+
+
 /* Toggle between adding and removing the "responsive" class to topnav when the user clicks on the icon */
 
 function myFunction() {
@@ -8,34 +25,3 @@ function myFunction() {
     x.className = "topnav";
   }
 } 
-
-function logOut() {
-    let supabaseClient = null;
-    async function loadSupabase() {
-        try {
-            // Load /frontend/config/config.json relative to pages/
-            const cfg = await fetch("../config/config.json").then(res => res.json());
-
-            supabaseClient = window.supabase.createClient(
-                cfg.SUPABASE_URL,
-                cfg.SUPABASE_ANON_KEY
-            );
-
-            console.log("Supabase loaded:", cfg.SUPABASE_URL);
-        }catch (err) {
-            console.error(err);
-            alert("Failed to load Supabase config: " + err);
-        }
-    }
-    async function signOut() {
-        const { error } = await supabase.auth.signOut()
-        if (error) {
-            console.error(err);
-            alert("Login failed: " + error.message);
-            return;
-        }
-    };
-    loadSupabase();
-    signOut();
-
-}

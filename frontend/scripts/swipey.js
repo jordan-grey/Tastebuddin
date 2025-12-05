@@ -1,3 +1,42 @@
+/* 
+  File: swipey.js
+  Created by: Jordan
+  Purpose:
+    Powers the swipe-style recipe feed on the "Swipe" page. 
+    Loads personalized recommendations for the logged-in user, displays 
+    one recipe at a time, and handles like/dislike actions that move the 
+    feed forward. Also manages empty-feed behavior and UI state updates.
+
+  Main Features:
+    - Authentication check:
+        • If no user ID is found in localStorage, redirect to sign-in page.
+    - Fetches user’s personalized feed from:
+        GET /feed/<userID>
+    - Displays recipe data including:
+        • Title
+        • Image
+        • Description
+        • Ingredients
+        • Directions
+        • Estimated time
+    - Provides functionality to:
+        • Like a recipe  → POST /user/like
+        • Dislike a recipe → POST /user/dislike
+    - Automatically advances to next recipe after like/dislike.
+    - Shows an empty-state view when feed is exhausted.
+    - Includes hooks for swipe animations (future implementation).
+
+  Behavior Summary:
+    - On load:
+        • Fetches feed.
+        • If empty → display empty-state.
+        • If valid → render first recipe.
+    - User clicks “like” or “reject”:
+        • Record saved to backend
+        • UI moves to next recipe
+    - Feed ends → recipe card is hidden and “You’re all caught up” appears.
+*/
+
 const API_BASE = "http://localhost:5001";
 const userID = localStorage.getItem("tastebuddin_user_id");
 
