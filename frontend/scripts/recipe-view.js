@@ -1,41 +1,33 @@
+
+/* 
+File: recipe-view.js
+Purpose: Handles loading, parsing, and rendering of an individual recipe displayed
+  on the recipe viewer page.
+System Role: Front-end controller for dynamic recipe viewing. Interacts with the backend
+  API, sanitizes/normalizes inconsistent recipe formats, and updates the DOM.
+  Also manages fallback behavior when recipes cannot be found or loaded.
+Edited Last: 2025-12-04
+Authors: Sarah Temple
+Modifications:
+  - Added URL parameter parsing to load recipe by recipeid.
+  - Added renderRecipe() to validate incoming backend data.
+  - Added showDefault() fallback UI for missing or invalid recipes.
+  - Improved steps/directions parsing to handle stringified arrays, mixed types,
+    and nested stringified JSON.
+  - Added dynamic HTML rendering for ingredients, allergens, and directions.
+  - Connected “no recipe found” UI with #no-recipes and #recipe-card containers.
+
+Uses:
+  - API_BASE — backend endpoint for retrieving recipes.
+  - HTML elements:
+      #recipe-title, #recipe-image, #recipe-allergen-tags, #recipe-author-name,
+      #recipe-likes, #recipe-overview, #recipe-ingredient-list,
+      #recipe-steps-list, #recipe-est-time, #recipe-card, #no-recipes
+  - URLSearchParams — reads ?recipeid=<id> from the page URL.
+*/
+
 const API_BASE = "http://localhost:5001";
 
-
-data = [
-    {
-        "authorid": "07989fc3-19cc-4478-b814-122510715767",
-        "authorname": "test_user",
-        "category": "dinner",
-        "datecreated": "2025-11-19T00:56:50.301391+00:00",
-        "description": "Pasta in a creamy tomato sauce with parmesan.",
-        "dietaryrestrictions": [
-            "dairy",
-            "gluten"
-        ],
-        "directions": [
-            "Bring a large pot of salted water to a boil and cook the pasta according to package instructions. Reserve 1/2 cup of pasta water.",
-            "In a saucepan, heat olive oil over medium heat and sauté minced garlic until fragrant, about 1 minute.",
-            "Stir in the tomato sauce and let it simmer for 3-4 minutes.",
-            "Add the heavy cream and stir until the sauce turns a light orange color.",
-            "Sprinkle in Parmesan and stir until melted and smooth.",
-            "Fold in the cooked pasta, adding a splash of reserved pasta water if needed to loosen.",
-            "Season with salt, pepper, and Italian herbs to taste.",
-            "Serve warm with extra Parmesan on top."
-        ],
-        "ingredients": [
-            "pasta",
-            "tomato sauce",
-            "cream",
-            "parmesan",
-            "garlic"
-        ],
-        "likes": 1,
-        "minutestocomplete": 25,
-        "photopath": "https://nxzaxhgyzapnnqcfjxpn.supabase.co/storage/v1/object/public/recipe_images/693a084f-4932-45eb-96bc-3628ba35029e_creamy_tomato_pasta.jpg",
-        "recipeid": 60,
-        "title": "Creamy Tomato Pasta"
-    }
-]
 
 const params = new URLSearchParams(window.location.search);
 const id = params.get("recipeid");
@@ -44,8 +36,13 @@ fetch(`${API_BASE}/recipes/${id}`)
     .then(res => res.json())
     .then(data => {
         console.log("User feed: ", data);
-        renderRecipe(data.data);
+
+        // FIX HERE:
+        const recipe = Array.isArray(data.data) ? data.data : [data.data];
+
+        renderRecipe(recipe);
     });
+
 
 let titleRef = document.querySelector("#recipe-title");
 let imgEl = document.querySelector("#recipe-image");
@@ -61,7 +58,8 @@ let idx = 0;
 function renderRecipe(feedData) {
     console.log("Rendering recipe:", feedData);
 
-    if (!feedData || feedData.length === 0) {
+    if (!feedData || !Array.isArray(feedData) || feedData.length === 0) 
+        {
         showDefault();
         return;
     }
