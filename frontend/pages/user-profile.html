@@ -1,3 +1,57 @@
+<!--
+  File: user-profile.html
+  Created by: Kadee and Evan
+  Purpose:
+    Displays the logged-in user’s profile, including username, profile photo,
+    total likes, and all recipes created by the user. 
+    Allows viewing, deleting, and managing recipes, as well as updating the profile photo 
+    through file upload or live camera capture.
+
+  Main Features:
+    - Responsive navigation bar shared across site.
+    - Profile card displaying:
+        • Username  
+        • Profile image (upload or camera capture)  
+        • Total likes  
+        • Sign-out button
+    - Dynamic “My Recipes” section:
+        • Fetches recipes authored by the logged-in user (via API)  
+        • Renders interactive recipe cards with image, title, category, ingredients  
+        • Dropdown menu on each card with actions: View recipe, Delete recipe  
+    - Camera modal for taking profile photos directly from device.
+    - Automatic loading of user data using Supabase and API requests.
+
+  Dependencies:
+    CSS:
+      - /style/nav-dropdown.css        → Navigation bar styles
+      - /style/user-profile.css?v=2     → Profile layout & styling
+      - Inline styles in <style> tag    → Recipe card grid & dropdown styling
+      - Google Fonts (Montserrat)       → Page typography
+
+    Scripts:
+      - /scripts/nav-dropdown.js        → Mobile nav toggle behavior
+      - @supabase/supabase-js@2         → For authentication + user data
+      - /scripts/user-profile.js        → Manages profile logic (loading user info, images, sign-out)
+      - Inline JS                        → Fetch & render recipes, delete recipes, open dropdowns, view recipe
+
+  API Endpoints:
+    - GET  /recipes?authorid=<id>       → Loads user-created recipes
+    - DELETE /recipes/<id>              → Removes a recipe
+    - Client expects API_BASE to be "http://127.0.0.1:5001"
+
+  Data Requirements:
+    - localStorage key: "tastebuddin_user_id"  
+      Used to identify which user’s recipes to fetch.
+
+  Behavior Summary:
+    - Immediately loads recipes on page load.
+    - Clicking a recipe title opens the detailed recipe view page.
+    - Clicking “Upload / Camera” opens a menu for choosing:
+        • Capture from camera
+        • Upload a file
+-->
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
