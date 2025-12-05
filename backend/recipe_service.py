@@ -195,11 +195,11 @@ class RecipeService:
                 ).eq("recipeid", recipe_id).execute()
                 recipe["photopath"] = url
 
+            # Return created recipe id and data (no human-facing message)
             return {
-                    "message": "Recipe created successfully",
-                    "recipeid": recipe_id,
-                    "data": [recipe]
-                }
+                "recipeid": recipe_id,
+                "data": [recipe]
+            }
         except Exception as e:
             return {"error": str(e)}, 500
 
@@ -219,7 +219,8 @@ class RecipeService:
             if not response.data:
                 return {"error": "Recipe not found"}, 404
 
-            return {"message": "Recipe updated successfully", "data": response.data}
+            # Return updated data only
+            return {"data": response.data}
         except Exception as e:
             return {"error": str(e)}, 500
 
@@ -237,7 +238,8 @@ class RecipeService:
             if not response.data:
                 return {"error": "Recipe not found"}, 404
 
-            return {"message": "Recipe deleted successfully"}
+            # Return empty success payload (no human-facing message)
+            return {"data": []}
         except Exception as e:
             return {"error": str(e)}, 500
 
