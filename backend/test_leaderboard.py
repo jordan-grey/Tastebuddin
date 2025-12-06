@@ -1,3 +1,17 @@
+"""
+File: leaderboard_tests.py
+Purpose: Unit tests for LeaderboardService using mocked Supabase responses.
+         Ensures that daily, weekly, and author leaderboards compute correct
+         rankings and maintain proper response structure.
+Created: December 2024
+Authors: Kadee Wheeler
+
+Part of System:
+    Belongs to the test suite validating leaderboard functionality. These tests
+    do not require a real database; they instead mock the Supabase client.
+
+"""
+
 import unittest
 from unittest.mock import MagicMock
 from leaderboard_service import LeaderboardService

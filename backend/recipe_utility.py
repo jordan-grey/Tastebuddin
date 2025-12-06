@@ -1,3 +1,18 @@
+"""
+File: recipe_utility.py
+Purpose: Provides helper functions used to generate personalized recipe feeds,
+         normalize allergen/diet restriction data, parse user preferences, and
+         filter recipes according to unseen lists and allergy constraints.
+Created: December 2024
+Authors: Kadee Wheeler
+Part of System:
+    Used by backend logic in `app.py` and `RecipeService`. This class does not
+    directly access Flask, but is used to compute dynamic feeds for each user.
+    Functions include token normalization, allergen filtering, unseen filtering,
+    and feed generation used in the swipe UI.
+
+"""
+
 from typing import Iterable, List, Dict, Any, Optional
 import ast
 import re

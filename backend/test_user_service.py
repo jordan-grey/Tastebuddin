@@ -1,3 +1,18 @@
+"""
+File: user_service_database_test.py
+Purpose: Unit tests for the UserService class and its interaction with Supabase,
+         including user creation, updating allergens, liking/unliking recipes,
+         and unseen recipe handling.
+
+Part of: Tastebuddin Backend System
+         This test suite validates the database-integrated behavior of the
+         user management subsystem, ensuring correct coordination between
+         UserService and RecipeService.
+
+Created: December 2025
+Authors: Kadee Wheeler
+"""
+
 import unittest
 import uuid
 import os

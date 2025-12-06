@@ -1,3 +1,70 @@
+<!--
+  File: swipey.html
+  Created by: Jordan
+  Purpose:
+    Displays the Tastebuddin swipe-style recipe feed, allowing users to 
+    quickly browse through recommended recipes by swiping/liking/rejecting.
+    Acts as the main "discovery feed" of the app.
+
+  Main Features:
+    - Shared responsive navigation bar across site.
+    - Dynamic recipe viewer that:
+        • Displays recipe image, title, estimated time, overview, allergens  
+        • Renders ingredients and step-by-step instructions  
+        • Provides like ("Y") and reject ("X") buttons for user interaction
+    - Swipe-feed logic controlled by swipey.js (fetching, rotating, showing next recipe).
+    - Fallback "No more recipes" message when feed is empty.
+    - Shows and hides layout elements depending on feed state:
+        • #recipe-card       → main recipe display  
+        • #no-recipes        → shown when no feed items remain  
+
+  Dependencies:
+    CSS:
+      - ../style/signin.css         → Shared global styles
+      - ../style/swipey.css         → Swipe feed layout & mobile responsiveness
+      - ../style/nav-dropdown.css   → Navigation bar styles
+      - Font Awesome (via CDN)      → Mobile nav icon
+
+    Scripts:
+      - /scripts/nav-dropdown.js    → Handles mobile dropdown nav behavior
+      - ../scripts/swipey.js        → Core swipe-feed controller:
+          • Fetches recipe feed items
+          • Updates DOM with current recipe
+          • Registers like/reject events
+          • Calls showDefault() when feed is empty
+
+  DOM Structure Summary:
+    - #recipe-card  
+        Container that holds the visible recipe card UI.
+    - #recipe-info  
+        Wrapper for image, title, overview, ingredients, and steps.
+    - #swipey-buttons  
+        Contains the like and reject buttons.
+    - #no-recipes  
+        Placeholder displayed when feed is exhausted.
+
+  Behavior Summary:
+    - Page loads → swipey.js fetches next available recipe.
+    - If recipe exists:
+        • Content is injected into UI fields (title, image, steps, etc.)
+        • Buttons become active.
+    - If no recipes:
+        • #recipe-card is hidden
+        • #no-recipes message is shown
+    - Like/Reject triggers:
+        • API call or storage update
+        • Feed advances to next recipe
+        • UI updates accordingly
+
+  Notes:
+    - ensure swipey.js handles null/empty responses gracefully.
+    - The “X” and “Y” identifiers on buttons are deliberate and tied
+      to swipey.js logic (mapped to reject/like actions).
+    - Default placeholder image used until API or feed provides a real one.
+
+-->
+
+
 <!DOCTYPE html>
 <html>
 <head>
