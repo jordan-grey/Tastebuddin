@@ -4,8 +4,8 @@
 In order to run the program, you must have Docker installed and running.
 
 ## How to Run
-1. Download the **Tastebuddin.zip** file. Extract into its own folder.
-2. Open a terminal. In the terminal, navigate to the root of the Tastebuddin project. This is the same location as this **README.md** and the **docker-compose.yml**.
+1. Download the ```Tastebuddin.zip``` file. Extract into its own folder. For the Instructors of the course this app was built for, this ```.zip``` file will contain the ```.env``` file with the Supabase API key necessary to interact with Tastebuddin's database. **Please do not expose this .env file, or the API keys within it.**
+2. Open a terminal. In the terminal, navigate to the root of the Tastebuddin project. This is the same location as this ```README.md``` and the ```docker-compose.yml```.
 3. Run ```docker compose build```. This will create the docker container to run the project in.
 4. Run ```docker compose up```. This will run the container that was just created in the previous step, and will begin hosting the frontend and backend of the website. This will also combine their functionalities so that the full website is accessible.
 5. Open a browser. Any old one will do; the writer of this guide used Google Chrome.
